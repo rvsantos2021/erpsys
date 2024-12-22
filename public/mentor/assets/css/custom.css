@@ -1,0 +1,64 @@
+.app-main {
+    min-height: 100vh;
+}
+
+.fixed-button-width {
+    width: 98px;
+}
+
+.legend {
+    width: auto;
+    padding: 0 5px;
+    border: 0;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #8e54e9;
+}
+
+legend {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    margin-bottom: .5rem;
+    font-size: 1.5rem;
+    line-height: inherit;
+    color: inherit;
+    white-space: normal;
+}
+
+.error {
+    color: #e3324c;
+    font-size: 12px !important;
+    padding-top: .3em;
+}
+
+.grid-150 {
+    min-height: 150px;
+}
+
+.mt-26,
+.my-26 {
+    margin-top: 2.3rem !important;
+}
+
+.mt-25,
+.my-25 {
+    margin-top: 2.6rem !important;
+}
+
+.invisible {
+    display: none;
+}
+
+.rounded-circle-60 {
+    height: 60px;
+}
+
+.select2-container .select2-selection--single {
+    height: 40px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 40px;
+}
