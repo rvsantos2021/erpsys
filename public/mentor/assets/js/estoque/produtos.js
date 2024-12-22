@@ -228,7 +228,7 @@ $('#datatable').on('click', '.btn-comp', function (e) {
 
     var id = $(this).attr('data-id');
     var dataURL = $route + '/composicao/' + id;
-    var title = $(this).attr('data-original-title');
+    var title = $(this).attr('title');
 
     $('#modalComposicaoLabel').html(title);
 
