@@ -1,4 +1,4 @@
-var $route = '/estoque/depositos';
+var $route = '/financeiro/formaspgto';
 
 (function (window, document, $, undefined) {
 
@@ -35,13 +35,31 @@ var $route = '/estoque/depositos';
                         'orderable': 'false',
                         "order": []
                     },
+                    {
+                        'targets': 4,
+                        'className': 'text-center',
+                        'orderable': 'false',
+                        "order": []
+                    },
+                    {
+                        'targets': 5,
+                        'className': 'text-center',
+                        'orderable': 'false',
+                        "order": []
+                    },
+                    {
+                        'targets': 6,
+                        'className': 'text-center',
+                        'orderable': 'false',
+                        "order": []
+                    },
                 ]
             });
         }
     });
 
     $('#modalForm').on('shown.bs.modal', function () {
-        $('[name="descricao"]').focus();
+        $('[name="nome"]').focus();
     });
 
 })(window, document, window.jQuery);

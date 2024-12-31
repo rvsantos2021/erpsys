@@ -1,7 +1,7 @@
                     <div class="card-body pb-3 pt-4">
                         <div class="text-center">
                             <div class="pt-1 bg-img m-auto">
-                                <img class="img-fluid" src="<?php echo site_url('assets/images/avatar-tipo-cobranca.png'); ?>" alt="Tipo de Cobrança" />
+                                <img class="img-fluid" src="<?php echo site_url('assets/images/avatar-forma-pagamento.png'); ?>" alt="Forma de Pagamento" />
                             </div>
                             <div class="mt-3">
                                 <h4 class="mb-1"><?php echo $table->descricao; ?></h4>

@@ -13,7 +13,7 @@
     <div class="col-lg-12">
         <div class="card card-statistics">
             <div class="card-header">
-                <button data-toggle="tooltip" data-original-title="Incluir Tipo de Cobrança" data-modulo="add" class="btn btn-sm btn-square btn-inverse-success fixed-button-width float-right btn-add">
+                <button data-toggle="tooltip" data-original-title="Incluir Forma de Pagamento" data-modulo="add" class="btn btn-sm btn-square btn-inverse-success fixed-button-width float-right btn-add">
                     <i class="ti ti-plus"></i> Incluir
                 </button>
             </div>
@@ -24,6 +24,10 @@
                             <tr>
                                 <th scope="col" class="col-1">ID</th>
                                 <th scope="col">Descrição</th>
+                                <th scope="col" class="text-center col-1">Financeiro</th>
+                                <th scope="col" class="text-center col-1">Desconto</th>
+                                <th scope="col" class="text-center col-1">Pagar</th>
+                                <th scope="col" class="text-center col-1">Receber</th>
                                 <th scope="col" class="text-center col-1">Status</th>
                                 <th scope="col" class="text-center col-1">Ações</th>
                             </tr>
@@ -34,6 +38,10 @@
                             <tr>
                                 <th scope="col" class="col-1">ID</th>
                                 <th scope="col">Descrição</th>
+                                <th scope="col" class="text-center col-1">Financeiro</th>
+                                <th scope="col" class="text-center col-1">Desconto</th>
+                                <th scope="col" class="text-center col-1">Pagar</th>
+                                <th scope="col" class="text-center col-1">Receber</th>
                                 <th scope="col" class="text-center col-1">Status</th>
                                 <th scope="col" class="text-center col-1">Ações</th>
                             </tr>
@@ -73,6 +81,6 @@
 
 <?php echo $this->section('scripts'); ?>
 <!-- custom app -->
-<script src="<?php echo site_url('mentor/assets/'); ?>js/financeiro/tipos-cobrancas.js"></script>
-<script src="<?php echo site_url('mentor/assets/'); ?>js/common.js" data-route="tiposcobranca"></script>
+<script src="<?php echo site_url('mentor/assets/'); ?>js/financeiro/formas-pgto.js"></script>
+<script src="<?php echo site_url('mentor/assets/'); ?>js/common.js" data-route="formaspgto"></script>
 <?php echo $this->endSection(); ?>

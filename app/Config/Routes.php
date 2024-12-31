@@ -414,6 +414,22 @@ $routes->group('financeiro', function ($routes) {
     $routes->post('contascorrente/fetch', 'ContasCorrentes::fetch');
     $routes->post('contascorrente/insert', 'ContasCorrentes::insert');
     $routes->post('contascorrente/update', 'ContasCorrentes::update');
+
+    /**
+     * Controller ContasPagar
+     */
+    $routes->get('contaspagar', 'ContasPagar::index');
+    $routes->get('contaspagar/add', 'ContasPagar::create');
+    $routes->get('contaspagar/edit/(:num)', 'ContasPagar::edit/$1');
+    $routes->get('contaspagar/show/(:num)', 'ContasPagar::show/$1');
+    $routes->get('contaspagar/delete/(:num)', 'ContasPagar::delete/$1');
+    $routes->get('contaspagar/undo/(:num)', 'ContasPagar::undo/$1');
+
+    $routes->post('contaspagar/remove/(:num)', 'ContasPagar::remove/$1');
+    $routes->post('contaspagar/restore/(:num)', 'ContasPagar::restore/$1');
+    $routes->post('contaspagar/fetch', 'ContasPagar::datatables');
+    $routes->post('contaspagar/insert', 'ContasPagar::insert');
+    $routes->post('contaspagar/update', 'ContasPagar::update');
 });
 
 /****************************************************************************************************

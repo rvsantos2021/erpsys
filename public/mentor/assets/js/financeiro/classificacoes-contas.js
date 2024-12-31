@@ -1,4 +1,4 @@
-var $route = '/estoque/depositos';
+var $route = '/financeiro/classificacoescontas';
 
 (function (window, document, $, undefined) {
 
@@ -24,13 +24,13 @@ var $route = '/estoque/depositos';
                     }
                 },
                 'columnDefs': [{
-                        'targets': 2,
+                        'targets': 3,
                         'className': 'text-center',
                         'orderable': 'false',
                         "order": []
                     },
                     {
-                        'targets': 3,
+                        'targets': 4,
                         'className': 'text-center',
                         'orderable': 'false',
                         "order": []

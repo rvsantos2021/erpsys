@@ -1,4 +1,4 @@
-var $route = '/estoque/depositos';
+var $route = '/financeiro/contascorrente';
 
 (function (window, document, $, undefined) {
 
@@ -24,24 +24,24 @@ var $route = '/estoque/depositos';
                     }
                 },
                 'columnDefs': [{
-                        'targets': 2,
-                        'className': 'text-center',
-                        'orderable': 'false',
-                        "order": []
-                    },
-                    {
-                        'targets': 3,
-                        'className': 'text-center',
-                        'orderable': 'false',
-                        "order": []
-                    },
+                    'targets': 5,
+                    'className': 'text-center',
+                    'orderable': 'false',
+                    "order": []
+                },
+                {
+                    'targets': 6,
+                    'className': 'text-center',
+                    'orderable': 'false',
+                    "order": []
+                },
                 ]
             });
         }
     });
 
     $('#modalForm').on('shown.bs.modal', function () {
-        $('[name="descricao"]').focus();
+        $('[name="banco_id"]').focus();
     });
 
 })(window, document, window.jQuery);

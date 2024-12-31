@@ -1,7 +1,7 @@
                     <div class="card-body pb-3 pt-4">
                         <div class="text-center">
                             <div class="pt-1 bg-img m-auto">
-                                <img class="img-fluid" src="<?php echo site_url('assets/images/avatar-tipo-cobranca.png'); ?>" alt="Tipo de Cobrança" />
+                                <img class="img-fluid" src="<?php echo site_url('assets/images/avatar-conta-corrente.png'); ?>" alt="Conta Corrente" />
                             </div>
                             <div class="mt-3">
                                 <h4 class="mb-1"><?php echo $table->descricao; ?></h4>
@@ -11,12 +11,12 @@
                                         <p><?php echo formatDateTime($table->created_at); ?></p>
                                     </li>
                                     <li class="flex-fill">
-                                        <p><strong>Excluído em</strong></p>
-                                        <p><?php echo formatDateTime($table->deleted_at); ?></p>
+                                        <p><strong>Última Atualização</strong></p>
+                                        <p><?php echo formatDateTime($table->updated_at); ?></p>
                                     </li>
                                 </ul>
                             </div>
                             <input type="hidden" name="id" value="<?php echo $table->id; ?>" />
-                            <input type="hidden" name="method_del" value="restore" />
+                            <input type="hidden" name="method_del" value="remove" />
                         </div>
                     </div>

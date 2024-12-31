@@ -1,15 +1,19 @@
                 <div class="form-row">
                     <div class="form-group col-md-3">
                         <div class="text-center">
-                            <img class="img-fluid" src="<?php echo site_url('assets/images/avatar-tipo-cobranca.png'); ?>" alt="Tipo de Cobrança" />
+                            <img class="img-fluid" src="<?php echo site_url('assets/images/avatar-banco.png'); ?>" alt="Banco" />
                         </div>
                     </div>
                     <div class="form-group col-md-9">
                         <fieldset class="border pr-4 pl-4 rounded">
                             <legend class="legend"> <i class="fa fa-bookmark"></i> Dados Gerais</legend>
                             <div class="form-row">
-                                <div class="form-group col-md-12">
-                                    <label>Descrição</label>
+                                <div class="form-group col-md-2">
+                                    <label>Número</label>
+                                    <input type="text" class="form-control" name="codigo" value="<?php echo $table->codigo; ?>" disabled />
+                                </div>
+                                <div class="form-group col-md-10">
+                                    <label>Nome</label>
                                     <input type="text" class="form-control" name="descricao" value="<?php echo $table->descricao; ?>" disabled />
                                 </div>
                             </div>

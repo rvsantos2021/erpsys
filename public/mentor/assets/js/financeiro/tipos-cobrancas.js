@@ -1,4 +1,4 @@
-var $route = '/estoque/depositos';
+var $route = '/financeiro/tiposcobranca';
 
 (function (window, document, $, undefined) {
 

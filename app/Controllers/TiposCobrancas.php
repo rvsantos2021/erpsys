@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Controllers\BaseController;
 use App\Entities\TipoCobranca;
 
 class TiposCobrancas extends BaseController
@@ -15,10 +14,11 @@ class TiposCobrancas extends BaseController
 
     /**
      * Método que valida se o tipo de cobrança existe. Caso exista retorna um object com os dados do tipo de cobrança, caso
-     * não exista, retorna um Exception
-     * 
-     * @param integer $id
-     * @return Object ou Exception
+     * não exista, retorna um Exception.
+     *
+     * @param int $id
+     *
+     * @return object ou Exception
      */
     private function validation_tipo(int $id = null)
     {
@@ -36,32 +36,32 @@ class TiposCobrancas extends BaseController
     }
 
     /**
-     * Método que retorna a view com todos os registros da tabela
-     * 
+     * Método que retorna a view com todos os registros da tabela.
+     *
      * @return view
      */
     public function index()
     {
         if ($this->getLoggedUserData() == '') {
-            return redirect()->to(site_url("login"))->with("message-info", "Verifique suas credenciais e tente novamente!");
+            return redirect()->to(site_url('login'))->with('message-info', 'Verifique suas credenciais e tente novamente!');
         }
 
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
-        $data = array(
-            'menu'    => 'Financeiro',
+        $data = [
+            'menu' => 'Financeiro',
             'submenu' => 'Cadastros',
-            'title'   => 'Tipos de Cobrança',
-        );
+            'title' => 'Tipos de Cobrança',
+        ];
 
-        return view($this->viewFolder . '/list', $data);
+        return view(APP_THEME.$this->viewFolder.'/list', $data);
     }
 
     /**
-     * Metodo chamado via AJAX que retorna um JSON com os dados de todos os tipos de cobrança
-     * 
+     * Metodo chamado via AJAX que retorna um JSON com os dados de todos os tipos de cobrança.
+     *
      * @return JSON
      */
     public function fetch()
@@ -70,15 +70,15 @@ class TiposCobrancas extends BaseController
             return redirect()->back();
         }
 
-        $columns = array(
+        $columns = [
             0 => 'cobrancas_tipos.id',
             1 => 'cobrancas_tipos.descricao',
             2 => 'cobrancas_tipos.active',
-        );
+        ];
 
-        $draw = isset($_POST['draw']) ? (int)$_POST['draw'] : 10;
-        $start = isset($_POST['start']) ? (int)$_POST['start'] : 0;
-        $rowPerPage = isset($_POST['length']) ? (int)$_POST['length'] : 10;
+        $draw = isset($_POST['draw']) ? (int) $_POST['draw'] : 10;
+        $start = isset($_POST['start']) ? (int) $_POST['start'] : 0;
+        $rowPerPage = isset($_POST['length']) ? (int) $_POST['length'] : 10;
         $columnIndex = isset($_POST['order'][0]['column']) ? $_POST['order'][0]['column'] : 0;
         $orderColumn = isset($_POST['columns'][$columnIndex]['data']) ? $_POST['columns'][$columnIndex]['data'] : 0;
         $orderDir = isset($_POST['order']) ? $_POST['order'][0]['dir'] : '';
@@ -97,74 +97,82 @@ class TiposCobrancas extends BaseController
             $orderColumn = 0;
         }
 
-        $params_array = array(
+        $params_array = [
             'start' => $start,
             'rowperpage' => $rowPerPage,
             'search' => $search,
             'order' => $columns[$orderColumn],
             'dir' => $orderDir,
-        );
+        ];
 
         $tipos = $this->tipoCobrancaModel->getTipoCobrancas($params_array);
         $rowsTotal = $this->tipoCobrancaModel->countTipoCobrancas($search);
 
         $rows = 0;
-        $data = array();
+        $data = [];
 
         foreach ($tipos as $tipo) {
-            $act_view  = '<button data-toggle="tooltip" data-original-title="Visualizar Tipo de Cobrança" title="Visualizar Tipo de Cobrança" data-id="' . $tipo->id . '" data-modulo="view" class="btn btn-xs btn-default text-primary btn-width-27 btn-view"><i class="fa fa-eye"></i></button>';
-            $act_edit  = '<button data-toggle="tooltip" data-original-title="Editar Tipo de Cobrança" title="Editar Tipo de Cobrança" data-id="' . $tipo->id . '" data-modulo="edit" class="btn btn-xs btn-default btn-width-27 btn-edit"><i class="fas fa-edit"></i></button>';
+            if (APP_THEME == 'mentor') {
+                $act_view = '<button title="Visualizar Tipo de Cobrança" data-id="'.$tipo->id.'" data-modulo="view" class="btn btn-sm btn-icon btn-outline-dark btn-round btn-view"><i class="ti ti-eye"></i></button>';
+                $act_edit = '<button title="Editar Tipo de Cobrança" data-id="'.$tipo->id.'" data-modulo="edit" class="btn btn-sm btn-icon btn-outline-primary btn-round btn-edit"><i class="ti ti-pencil"></i></button>';
 
-            $sub_array = array();
+                $status = ($tipo->active == true ? '<span class="btn btn-sm btn-icon btn-round btn-inverse-success"><i class="ti ti-unlock" title="Ativo"></i></span>' : '<span class="btn btn-sm btn-icon btn-round btn-inverse-danger"><i class="ti ti-lock" title="Inativo"></i></span>');
+            } else {
+                $act_view = '<button data-toggle="tooltip" data-original-title="Visualizar Tipo de Cobrança" title="Visualizar Tipo de Cobrança" data-id="'.$tipo->id.'" data-modulo="view" class="btn btn-xs btn-default text-primary btn-width-27 btn-view"><i class="fa fa-eye"></i></button>';
+                $act_edit = '<button data-toggle="tooltip" data-original-title="Editar Tipo de Cobrança" title="Editar Tipo de Cobrança" data-id="'.$tipo->id.'" data-modulo="edit" class="btn btn-xs btn-default btn-width-27 btn-edit"><i class="fas fa-edit"></i></button>';
+
+                $status = ($tipo->active == true ? '<span class="btn btn-xs btn-default rounded-circle-custom text-success" data-toggle="tooltip" data-original-title="Ativo"><i class="fa fa-unlock" title="Ativo"></i></span>' : '<span class="btn btn-xs btn-default rounded-circle-custom text-danger" data-toggle="tooltip" data-original-title="Inativo"><i class="fa fa-lock" title="Inativo"></i></span>');
+            }
+
+            $sub_array = [];
 
             $sub_array[] = $tipo->id;
             $sub_array[] = $tipo->descricao;
-            $sub_array[] = ($tipo->active == true ? '<span class="btn btn-xs btn-default rounded-circle-custom text-success" data-toggle="tooltip" data-original-title="Ativo"><i class="fa fa-unlock" title="Ativo"></i></span>' : '<span class="btn btn-xs btn-default rounded-circle-custom text-danger" data-toggle="tooltip" data-original-title="Inativo"><i class="fa fa-lock" title="Inativo"></i></span>');
-            $sub_array[] = $act_view . $act_edit . $tipo->buttonsControl();
+            $sub_array[] = $status;
+            $sub_array[] = $act_view.$act_edit.$tipo->buttonsControl();
 
             $data[] = $sub_array;
-            $rows++;
+            ++$rows;
         }
 
-        $json = array(
+        $json = [
             'draw' => intval($draw),
             'recordsTotal' => intval($rowsTotal),
             'recordsFiltered' => intval($rowsTotal),
             'data' => $data,
-        );
+        ];
 
         echo json_encode($json);
     }
 
     /**
-     * Método que retorna a view de inclusão de tipo de cobrança
-     * 
+     * Método que retorna a view de inclusão de tipo de cobrança.
+     *
      * @return view
      */
     public function add()
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $tipo = new TipoCobranca();
 
-        $data = array(
-            'title'    => 'Novo Tipo de Cobrança',
-            'method'   => 'insert',
-            'viewpath' => APP_THEME . $this->viewFolder,
-            'form'     => 'form',
+        $data = [
+            'title' => 'Novo Tipo de Cobrança',
+            'method' => 'insert',
+            'viewpath' => APP_THEME.$this->viewFolder,
+            'form' => 'form',
             'response' => 'response',
-            'table'    => $tipo,
-        );
+            'table' => $tipo,
+        ];
 
-        // return view($this->viewFolder . '/_add', $data);
-        return view(APP_THEME . '/layout/modals/_modal', $data);
+        return view(APP_THEME.'/layout/modals/_modal', $data);
     }
 
     /**
-     * Método que faz o insert dos dados do tipo de cobrança
-     * 
+     * Método que faz o insert dos dados do tipo de cobrança.
+     *
      * @return json
      */
     public function insert()
@@ -226,35 +234,35 @@ class TiposCobrancas extends BaseController
     }
 
     /**
-     * Método que retorna a view de edição dos dados do tipo de cobrança
-     * 
+     * Método que retorna a view de edição dos dados do tipo de cobrança.
+     *
      * @param $id
+     *
      * @return view
      */
     public function edit(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $tipo = $this->validation_tipo($id);
 
-        $data = array(
-            'title'    => 'Editar Tipo de Cobrança',
-            'method'   => 'update',
-            'viewpath' => APP_THEME . $this->viewFolder,
-            'form'     => 'form',
+        $data = [
+            'title' => 'Editar Tipo de Cobrança',
+            'method' => 'update',
+            'viewpath' => APP_THEME.$this->viewFolder,
+            'form' => 'form',
             'response' => 'response',
-            'table'    => $tipo,
-        );
+            'table' => $tipo,
+        ];
 
-        // return view($this->viewFolder . '/_edit', $data);
-        return view(APP_THEME . '/layout/modals/_modal', $data);
+        return view(APP_THEME.'/layout/modals/_modal', $data);
     }
 
     /**
-     * Método que faz o update dos dados do tipo de cobrança
-     * 
+     * Método que faz o update dos dados do tipo de cobrança.
+     *
      * @return json
      */
     public function update()
@@ -312,32 +320,34 @@ class TiposCobrancas extends BaseController
     }
 
     /**
-     * Método que retorna a view de deleção do tipo de cobrança
-     * 
+     * Método que retorna a view de deleção do tipo de cobrança.
+     *
      * @param $id
+     *
      * @return view
      */
     public function delete(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $tipo = $this->validation_tipo($id);
 
-        $data = array(
-            'title'         => 'Excluir',
-            'method'        => 'delete',
-            'tipo_cobranca' => $tipo,
-        );
+        $data = [
+            'title' => 'Excluir',
+            'method' => 'delete',
+            'table' => $tipo,
+        ];
 
-        return view($this->viewFolder . '/_delete', $data);
+        return view(APP_THEME.$this->viewFolder.'/_delete', $data);
     }
 
     /**
-     * Método que faz a deleção do tipo de cobrança
-     * 
+     * Método que faz a deleção do tipo de cobrança.
+     *
      * @param $id
+     *
      * @return redirect
      */
     public function remove(int $id = null)
@@ -365,38 +375,40 @@ class TiposCobrancas extends BaseController
     }
 
     /**
-     * Método que retorna a view de restore do tipo de cobrança
-     * 
+     * Método que retorna a view de restore do tipo de cobrança.
+     *
      * @param $id
+     *
      * @return view
      */
     public function undo(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $tipo = $this->validation_tipo($id);
 
         $data = [
-            'title'         => 'Restaurar',
-            'method'        => 'restore',
-            'tipo_cobranca' => $tipo,
+            'title' => 'Restaurar',
+            'method' => 'restore',
+            'table' => $tipo,
         ];
 
-        return view($this->viewFolder . '/_restore', $data);
+        return view(APP_THEME.$this->viewFolder.'/_restore', $data);
     }
 
     /**
-     * Método que faz o restore do tipo de cobrança
-     * 
+     * Método que faz o restore do tipo de cobrança.
+     *
      * @param $id
+     *
      * @return redirect
      */
     public function restore(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $tipo = $this->validation_tipo($id);
@@ -417,24 +429,25 @@ class TiposCobrancas extends BaseController
     }
 
     /**
-     * Método que retorna a view de visualização dos dados do tipo de cobrança
-     * 
+     * Método que retorna a view de visualização dos dados do tipo de cobrança.
+     *
      * @param $id
+     *
      * @return view
      */
     public function show(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $tipo = $this->validation_tipo($id);
 
-        $data = array(
-            'title'         => 'Visualizar',
-            'tipo_cobranca' => $tipo,
-        );
+        $data = [
+            'title' => 'Visualizar',
+            'table' => $tipo,
+        ];
 
-        return view($this->viewFolder . '/_show', $data);
+        return view(APP_THEME.$this->viewFolder.'/_show', $data);
     }
 }

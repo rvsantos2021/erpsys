@@ -62,3 +62,44 @@ legend {
 .select2-container--default .select2-selection--single .select2-selection__rendered {
     line-height: 40px;
 }
+
+dummydeclaration {
+    padding-left: 4em;
+}
+
+/* Firefox ignores first declaration for some reason */
+tab1 {
+    padding-left: 1em;
+}
+
+tab2 {
+    padding-left: 2em;
+}
+
+tab3 {
+    padding-left: 3em;
+}
+
+tab4 {
+    padding-left: 4em;
+}
+
+tab5 {
+    padding-left: 5em;
+}
+
+tab6 {
+    padding-left: 6em;
+}
+
+tab7 {
+    padding-left: 7em;
+}
+
+tab8 {
+    padding-left: 8em;
+}
+
+tab9 {
+    padding-left: 9em;
+}
