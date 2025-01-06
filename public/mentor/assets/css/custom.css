@@ -103,3 +103,19 @@ tab8 {
 tab9 {
     padding-left: 9em;
 }
+
+.modal-50-width {
+    max-width: 50%;
+    margin: 1.75rem auto;
+}
+
+/* Estilo para campos Select2 inválidos */
+.select2-selection.border-danger {
+    border-color: #dc3545 !important;
+}
+
+/* Estilo para status Pendente */
+.badge-pendente {
+    color: #ffffff !important;
+    background-color: #6c757d;
+}

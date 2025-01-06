@@ -268,33 +268,50 @@ function replaceAll(string, token, newtoken) {
 }
 
 function formatValorDecimal(v) {
-    if (v == "") {
+    // Verificar se o valor é undefined, null ou vazio
+    if (v === undefined || v === null || v === "") {
         return "0,00";
     }
 
-    if (v.indexOf(",") == 0) {
-        v = "0" + v.toString();
+    // Converter para string
+    v = v.toString();
+
+    // Remover espaços em branco
+    v = v.trim();
+
+    // Verificar se o valor é "0"
+    if (v === "0") {
+        return "0,00";
     }
 
-    v = v.toString();
-    v = replaceAll(v, ".", "");
+    // Substituir ponto se necessário
+    v = v.replace(".", "");
+
+    // Substituir vírgula por ponto se necessário
     v = v.replace(",", ".");
-    v = parseFloat(v);
-    v = v.toFixed(2);
-    v = v.toString();
-    v = replaceAll(v, ".", "");
-    v = v.replace(/(\d{2})$/, ",$1");
-    v = v.replace(/(\d+)(\d{3},\d{2})$/g, "$1.$2");
 
-    var qtdLoop = (v.length - 3) / 3; var count = 0;
-    while (qtdLoop > count) {
-        count++;
-        v = v.replace(/(\d+)(\d{3}.*)/, "$1.$2");
+    // Remover caracteres não numéricos, exceto o ponto
+    v = v.replace(/[^\d.]/g, "");
+
+    // Converter para número de ponto flutuante
+    let numValue = parseFloat(v);
+
+    // Verificar se é um número válido
+    if (isNaN(numValue)) {
+        return "0,00";
     }
 
-    v = v.replace(/^(0)(\d)/g, "$2");
+    // Formatar para duas casas decimais
+    v = numValue.toFixed(2);
 
-    return v
+    // Substituir ponto por vírgula
+    v = v.replace(".", ",");
+
+    // Adicionar separador de milhar
+    let parts = v.split(",");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+    return parts.join(",");
 }
 
 function roundTo(number, upto) {
@@ -317,6 +334,11 @@ function roundTo(number, upto) {
  * Função para converter número no formato brasileiro para o formato numérico padrão
  */
 function converterParaNumero(valor) {
+    // Verificar se o valor é undefined, null ou vazio
+    if (valor === undefined || valor === null || valor === "") {
+        return 0;
+    }
+
     // Remove os pontos de milhar e substitui a vírgula decimal por um ponto
     return parseFloat(valor.replace(/\./g, '').replace(',', '.'));
 }

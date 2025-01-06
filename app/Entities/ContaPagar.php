@@ -7,7 +7,12 @@ use CodeIgniter\I18n\Time;
 
 class ContaPagar extends Entity
 {
-    protected $entity = 'Conta';
+    protected $datamap = [
+        'fornecedor_nome'          => 'fornecedor.nome',
+        'classificacao_conta_nome' => 'classificacaoConta.nome',
+        'forma_pagamento_nome'     => 'formaPagamento.nome',
+        'conta_corrente_nome'      => 'contaCorrente.nome'
+    ];
 
     protected $dates   = [
         'data_emissao',
@@ -15,31 +20,46 @@ class ContaPagar extends Entity
         'data_pagamento',
         'created_at',
         'updated_at',
-        'deleted_at'
+        'deleted_at',
     ];
 
-    protected $casts   = [
-        'valor_total' => 'float',
-        'valor_pago'  => 'float',
-        'numero_parcela' => 'integer',
-        'total_parcelas' => 'integer'
+    protected $casts = [
+        'id'                     => 'integer',
+        'fornecedor_id'          => 'integer',
+        'conta_pai_id'           => 'integer',
+        'classificacao_conta_id' => 'integer',
+        'forma_pagamento_id'     => 'integer',
+        'conta_corrente_id'      => 'integer',
+        'valor_total'            => 'float',
+        'valor_previsto'         => 'float',
+        'valor_desconto'         => 'float',
+        'valor_acrescimo'        => 'float',
+        'valor_pago'             => 'float',
+        'numero_parcela'         => 'integer',
+        'total_parcelas'         => 'integer',
+        'previsao'               => 'boolean',
+        'active'                 => 'boolean',
     ];
-
-    /**
-     * Método que controla os botões Excluir e Recuperar
-     * @return string
-     */
-    public function buttonsControl()
+    
+    // Relacionamentos
+    public function getFornecedor()
     {
-        if (APP_THEME == 'mentor') {
-            $btnDelete = '<button title="Excluir ' . $this->entity . '" data-id="' . $this->id . '" class="btn btn-sm btn-icon btn-outline-danger btn-round btn-del"><i class="ti ti-trash"></i></button>';
-            $btnRestore = '<button title="Restaurar ' . $this->entity . '" data-id="' . $this->id . '" class="btn btn-sm btn-icon btn-outline-success btn-round btn-undo"><i class="ti ti-back-left"></i></button>';
-        } else {
-            $btnDelete = '<button data-toggle="tooltip" data-original-title="Excluir ' . $this->entity . '" title="Excluir ' . $this->entity . '" data-id="' . $this->id . '" class="btn btn-xs btn-default text-danger btn-width-27 btn-del"><i class="fas fa-trash-alt"></i></button>';
-            $btnRestore = '<button data-toggle="tooltip" data-original-title="Restaurar ' . $this->entity . '" title="Restaurar ' . $this->entity . '" data-id="' . $this->id . '" class="btn btn-xs btn-default text-success btn-width-27 btn-undo"><i class="fa fa-undo"></i></button>';
-        }
+        return $this->fornecedor;
+    }
 
-        return ($this->deleted_at == null ? $btnDelete : $btnRestore);
+    public function getClassificacaoConta()
+    {
+        return $this->classificacaoConta;
+    }
+
+    public function getFormaPagamento()
+    {
+        return $this->formaPagamento;
+    }
+
+    public function getContaCorrente()
+    {
+        return $this->contaCorrente;
     }
 
     // Métodos personalizados para manipulação de dados
@@ -96,10 +116,11 @@ class ContaPagar extends Entity
     public function getStatusFormatado()
     {
         $cores = [
-            'PENDENTE' => 'warning',
-            'PARCIAL' => 'info',
-            'PAGO' => 'success',
-            'CANCELADO' => 'danger'
+            'PENDENTE' => 'warning text-white',
+            'PARCIAL' => 'info text-white',
+            'PAGO' => 'success text-white',
+            'CANCELADO' => 'default',
+            'ATRASADO' => 'danger text-white',
         ];
 
         return sprintf(
@@ -133,5 +154,109 @@ class ContaPagar extends Entity
         }
 
         return 'Conta Avulsa';
+    }
+
+    public function getDataVencimento()
+    {
+        // Obter valor diretamente sem processamento
+        $value = $this->attributes['data_vencimento'] ?? null;
+    
+        // Se nulo, retornar data atual
+        if ($value === null) {
+            return date('Y-m-d');
+        }
+    
+        // Se for objeto Time, converter para string
+        if ($value instanceof Time) {
+            return $value->toDateString();
+        }
+    
+        // Se for string
+        if (is_string($value)) {
+            // Remover espaços e qualquer parte de tempo
+            $value = trim(explode(' ', $value)[0]);
+    
+            // Formatos de data para tentar
+            $formatos = [
+                'Y-m-d',       // Formato padrão do banco
+                'd/m/Y',       // Formato brasileiro
+                'm/d/Y',       // Formato americano
+                'Y-m-d H:i:s'  // Timestamp com hora
+            ];
+    
+            foreach ($formatos as $formato) {
+                $data = \DateTime::createFromFormat($formato, $value);
+                if ($data) {
+                    return $data->format('Y-m-d');
+                }
+            }
+    
+            // Último recurso: parse flexível
+            try {
+                $data = new \DateTime($value);
+                return $data->format('Y-m-d');
+            } catch (\Exception $e) {
+                // Log de erro
+                log_message('error', 'Erro na conversão de data: ' . $e->getMessage());
+                return date('Y-m-d');
+            }
+        }
+    
+        // Fallback para qualquer outro tipo
+        return date('Y-m-d');
+    }
+    
+    public function setDataVencimento($value)
+    {
+        // Se nulo, usar data atual
+        if ($value === null) {
+            $this->attributes['data_vencimento'] = date('Y-m-d');
+            return $this;
+        }
+    
+        // Se for objeto Time, converter para string
+        if ($value instanceof Time) {
+            $this->attributes['data_vencimento'] = $value->toDateString();
+            return $this;
+        }
+    
+        // Se for string
+        if (is_string($value)) {
+            // Remover espaços e qualquer parte de tempo
+            $value = trim(explode(' ', $value)[0]);
+    
+            // Formatos de data para tentar
+            $formatos = [
+                'Y-m-d',       // Formato padrão do banco
+                'd/m/Y',       // Formato brasileiro
+                'm/d/Y',       // Formato americano
+                'Y-m-d H:i:s'  // Timestamp com hora
+            ];
+    
+            foreach ($formatos as $formato) {
+                $data = \DateTime::createFromFormat($formato, $value);
+                if ($data) {
+                    $this->attributes['data_vencimento'] = $data->format('Y-m-d');
+                    return $this;
+                }
+            }
+    
+            // Último recurso: parse flexível
+            try {
+                $data = new \DateTime($value);
+                $this->attributes['data_vencimento'] = $data->format('Y-m-d');
+                return $this;
+            } catch (\Exception $e) {
+                // Log de erro
+                log_message('error', 'Erro na conversão de data: ' . $e->getMessage());
+                $this->attributes['data_vencimento'] = date('Y-m-d');
+                return $this;
+            }
+        }
+    
+        // Fallback para qualquer outro tipo
+        $this->attributes['data_vencimento'] = date('Y-m-d');
+
+        return $this;
     }
 }

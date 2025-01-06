@@ -1,6 +1,8 @@
-<div class="modal-header">
-    <h5 class="modal-title">Editar Conta a Pagar</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal-header table-primary">
+    <h4 class="modal-title text-primary">Editar Conta a Pagar</h4>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
 </div>
 <form id="formEdicao">
     <input type="hidden" name="id" value="<?= $conta->id ?>">
@@ -10,35 +12,41 @@
                 <fieldset class="border pb-4 pr-4 pl-4 rounded">
                     <legend class="legend"><i class="ti ti-file-description"></i> Dados da Conta</legend>
                     <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label>Descrição</label>
+                            <input type="text" name="descricao" class="form-control" placeholder="Descrição" value="<?= $conta->descricao ?>" maxlength="100" required />
+                        </div>
+                    </div>
+                    <div class="form-row">
                         <div class="form-group col-md-6">
                             <label>Fornecedor</label>
                             <select name="fornecedor_id" class="js-basic-single form-control" data-js-container=".modal" required>
                                 <option value="">Selecione</option>
                                 <?php foreach($fornecedores as $fornecedor): ?>
                                     <option value="<?= $fornecedor->id ?>" <?= $fornecedor->id == $conta->fornecedor_id ? 'selected' : '' ?>>
-                                        <?= $fornecedor->razao_social ?>
+                                        <?= $fornecedor->nome_fantasia === '' ? $fornecedor->razao_social : $fornecedor->nome_fantasia; ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="form-group col-md-6">
                             <label>Classificação da Conta</label>
-                            <select name="classificacao_conta_id" class="js-basic-single form-control" data-js-container=".modal">
+                            <select name="classificacao_conta_id" class="js-basic-single form-control" data-js-container=".modal" required>
                                 <option value="">Selecione</option>
                                 <?php foreach($classificacoes as $classificacao): ?>
                                     <option value="<?= $classificacao->id ?>" <?= $classificacao->id == $conta->classificacao_conta_id ? 'selected' : '' ?>>
-                                        <?= $classificacao->nome ?>
+                                        <?= $classificacao->descricao ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>Número do Documento</label>
-                            <input type="text" name="numero_documento" class="form-control" placeholder="Número do documento" value="<?= $conta->numero_documento ?>">
+                        <div class="form-group col-md-2">
+                            <label>Nº Documento</label>
+                            <input type="text" name="numero_documento" class="form-control" placeholder="Documento" value="<?= $conta->numero_documento ?>" maxlength="50" />
                         </div>
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-4">
                             <label>Forma de Pagamento</label>
                             <select name="forma_pagamento_id" class="js-basic-single form-control" data-js-container=".modal">
                                 <option value="">Selecione</option>
@@ -49,55 +57,43 @@
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-3">
                             <label>Valor Total</label>
                             <div class="input-group">
                                 <span class="input-group-text">R$</span>
-                                <input type="text" name="valor_total" class="form-control mask-money" data-mask placeholder="0,00" value="<?= number_format($conta->valor_total, 2, ',', '.') ?>" required>
+                                <input type="text" name="valor_total" class="form-control money text-right" placeholder="0,00" value="<?= number_format($conta->valor_total, 2, ',', '.') ?>" maxlength="12" required />
                             </div>
                         </div>
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-3">
                             <label>Data de Vencimento</label>
-                            <input type="date" name="data_vencimento" class="form-control" value="<?= $conta->data_vencimento ?>" required>
+                            <input type="date" name="data_vencimento" class="form-control" value="<?= str_replace(' 00:00:00', '', $conta->data_vencimento) ?>" required />
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group col-md-12">
-                            <label>Descrição</label>
-                            <textarea name="descricao" class="form-control" rows="3" placeholder="Descrição adicional"><?= $conta->descricao ?></textarea>
+                        <div class="form-group col-md-4">
+                            <label>Conta</label>
+                            <select name="conta_corrente_id" class="js-basic-single form-control" data-js-container=".modal">
+                                <option value="">Selecione</option>
+                                <?php foreach($contasCorrente as $contaCorrente): ?>
+                                    <option value="<?= $contaCorrente->id ?>" <?= $contaCorrente->id == $conta->conta_corrente_id ? 'selected' : '' ?>><?= $contaCorrente->descricao ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-8">
+                            <div class="form-check float-right">
+                                <input type="checkbox" class="form-check-input" id="previsao" name="previsao" <?= $conta->previsao ? 'checked' : '' ?> />
+                                <label for="previsao">Previsão</label>
+                            </div>
                         </div>
                     </div>
                 </fieldset>
             </div>
         </div>
     </div>
-    <?= $this->include('mentor/layout/_response'); ?>
     <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-block" data-bs-dismiss="modal">Cancelar</button>
-        <button type="submit" class="btn btn-primary btn-block">Salvar</button>
+        <button type="button" class="btn btn-square btn-inverse-success fixed-button-width modal-confirm-cp">Salvar</button>
+        <button type="button" class="btn btn-square btn-inverse-primary fixed-button-width modal-dismiss-cp" data-dismiss="modal">Fechar</button>
     </div>
 </form>
 
-<script type="text/javascript">
-$(document).ready(function() {
-    // Tipo de Conta (Avulsa/Parcelada)
-    $('#tipoConta').on('change', function() {
-        const parcelaContainer = $('#parcelaContainer');
-        const selectedValue = $(this).val();
-        
-        if (selectedValue === 'PARCELADA') {
-            parcelaContainer.show();
-            $('input[name="total_parcelas"]').prop('required', true);
-        } else {
-            parcelaContainer.hide();
-            $('input[name="total_parcelas"]').prop('required', false).val('');
-        }
-    });
-
-    // Inicializar Select2 para todos os selects
-    $(".js-basic-single").select2({
-        dropdownParent: $("#modalCadastro")
-    });
-});
+<script src="<?= site_url('mentor/assets/'); ?>js/financeiro/contas-pagar-form.js" data-method="edit"></script>

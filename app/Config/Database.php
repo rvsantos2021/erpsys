@@ -27,9 +27,9 @@ class Database extends Config
     public array $default = [
         'DSN'          => '',
         'hostname'     => 'mysql.prsystem.com.br',
-        'username'     => 'prsystem08_add1',
+        'username'     => 'prsystem03_add1',
         'password'     => 'IRgwnKbsxmg7',
-        'database'     => 'prsystem08',
+        'database'     => 'prsystem03',
         'DBDriver'     => 'MySQLi',
         'DBPrefix'     => '',
         'pConnect'     => false,

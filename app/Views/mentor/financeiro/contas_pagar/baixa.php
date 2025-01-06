@@ -1,33 +1,124 @@
-<div class="modal-header">
-    <h5 class="modal-title">Realizar Baixa</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal-header table-primary">
+    <h4 class="modal-title text-primary"><?php echo $title; ?></h4>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
 </div>
 <form id="formBaixa">
     <input type="hidden" name="id" value="<?= $conta->id ?>">
     <div class="modal-body">
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Valor Total</label>
-                <input type="text" class="form-control" value="<?= number_format($conta->valor_total, 2, ',', '.') ?>" readonly>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Valor Pago</label>
-                <input type="text" name="valor_pago" class="form-control mask-money" required>
-            </div>
-            <div class="col-md-12 mb-3">
-                <label class="form-label">Observações</label>
-                <textarea name="observacoes" class="form-control"></textarea>
+        <div class="form-row">
+            <div class="form-group col-md-12">
+                <fieldset class="border pb-4 pr-4 pl-4 rounded">
+                    <legend class="legend"><i class="ti ti-file-description"></i> Dados da Conta</legend>
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label>Descrição</label>
+                            <input type="text" name="descricao" class="form-control" placeholder="Descrição" value="<?= $conta->descricao ?>" disabled />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Fornecedor</label>
+                            <select name="fornecedor_id" class="js-basic-single form-control" data-js-container=".modal" disabled>
+                                <option value="">Selecione</option>
+                                <?php foreach($fornecedores as $fornecedor): ?>
+                                    <option value="<?= $fornecedor->id ?>" <?= $fornecedor->id == $conta->fornecedor_id ? 'selected' : '' ?>>
+                                        <?= $fornecedor->nome_fantasia === '' ? $fornecedor->razao_social : $fornecedor->nome_fantasia; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Classificação da Conta</label>
+                            <select name="classificacao_conta_id" class="js-basic-single form-control" data-js-container=".modal" disabled>
+                                <option value="">Selecione</option>
+                                <?php foreach($classificacoes as $classificacao): ?>
+                                    <option value="<?= $classificacao->id ?>" <?= $classificacao->id == $conta->classificacao_conta_id ? 'selected' : '' ?>>
+                                        <?= $classificacao->descricao ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-2">
+                            <label>Nº Documento</label>
+                            <input type="text" name="numero_documento" class="form-control" placeholder="Documento" value="<?= $conta->numero_documento ?>" disabled />
+                        </div>
+                        <div class="form-group col-md-4">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label>Valor Total</label>
+                            <div class="input-group">
+                                <span class="input-group-text">R$</span>
+                                <input type="text" name="valor_total" class="form-control money text-right" placeholder="0,00" value="<?= number_format($conta->valor_total, 2, ',', '.') ?>" maxlength="12" disabled />
+                            </div>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label>Data de Vencimento</label>
+                            <input type="date" name="data_vencimento" class="form-control" value="<?= str_replace(' 00:00:00', '', $conta->data_vencimento) ?>" disabled />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <label>Valor Desconto</label>
+                            <div class="input-group">
+                                <span class="input-group-text">R$</span>
+                                <input type="text" name="valor_desconto" class="form-control money text-right" placeholder="0,00" maxlength="12" <?php echo $method == 'view' ? 'disabled' : '' ?> />
+                            </div>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label>Valor Acréscimo</label>
+                            <div class="input-group">
+                                <span class="input-group-text">R$</span>
+                                <input type="text" name="valor_acrescimo" class="form-control money text-right"placeholder="0,00" maxlength="12" <?php echo $method == 'view' ? 'disabled' : '' ?> />
+                            </div>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label>Valor Pago</label>
+                            <div class="input-group">
+                                <span class="input-group-text">R$</span>
+                                <input type="text" name="valor_pago" class="form-control money text-right" value="<?= number_format($conta->valor_pago, 2, ',', '.') ?>" placeholder="0,00" maxlength="12" <?php echo $method == 'view' ? 'disabled' : 'required' ?> />
+                            </div>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label>Data de Pagamento</label>
+                            <input type="date" name="data_pagamento" class="form-control" <?php echo $method == 'view' ? 'disabled' : 'required' ?> />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Conta</label>
+                            <select name="conta_corrente_id" class="js-basic-single form-control" data-js-container=".modal" <?php echo $method == 'view' ? 'disabled' : 'required' ?>>
+                                <option value="">Selecione</option>
+                                <?php foreach($contasCorrente as $contaCorrente): ?>
+                                    <option value="<?= $contaCorrente->id ?>" <?= $contaCorrente->id == $conta->conta_corrente_id ? 'selected' : '' ?>><?= $contaCorrente->descricao ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Forma de Pagamento</label>
+                            <select name="forma_pagamento_id" class="js-basic-single form-control" data-js-container=".modal" <?php echo $method == 'view' ? 'disabled' : 'required' ?>>
+                                <option value="">Selecione</option>
+                                <?php foreach($formasPagamento as $forma): ?>
+                                    <option value="<?= $forma->id ?>" <?= $forma->id == $conta->forma_pagamento_id ? 'selected' : '' ?>>
+                                        <?= $forma->nome ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
             </div>
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="submit" class="btn btn-success">Confirmar Baixa</button>
+        <?php if($method == 'payable'): ?>
+        <button type="button" class="btn btn-square btn-inverse-success fixed-button-width modal-confirm-cp">Baixar</button>
+        <?php endif; ?>
+        <button type="button" class="btn btn-square btn-inverse-primary fixed-button-width modal-dismiss-cp" data-dismiss="modal">Fechar</button>
     </div>
 </form>
 
-<script>
-$(document).ready(function() {
-    $('.mask-money').mask('#.##0,00', {reverse: true});
-});
-</script>
+<script src="<?= site_url('mentor/assets/'); ?>js/financeiro/contas-pagar-form.js" data-method="edit"></script>

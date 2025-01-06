@@ -27,11 +27,11 @@
                 <form id="formFiltro" class="mb-4">
                     <div class="row">
                         <div class="col-md-3">
-                            <label class="form-label">Período de Emissão</label>
+                            <label class="form-label">Período de Vencimento</label>
                             <div class="input-group">
-                                <input type="date" name="data_emissao_inicio" class="form-control">
+                                <input type="date" name="data_vencimento_inicio" class="form-control" value="<?= $filtro_data_inicio ?>" />
                                 <span class="input-group-text">até</span>
-                                <input type="date" name="data_emissao_fim" class="form-control">
+                                <input type="date" name="data_vencimento_fim" class="form-control" value="<?= $filtro_data_fim ?>" />
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -39,7 +39,9 @@
                             <select name="fornecedor_id" class="js-basic-single form-control form-select">
                                 <option value="">Todos</option>
                                 <?php foreach($fornecedores as $fornecedor): ?>
-                                    <option value="<?= $fornecedor->id ?>"><?= $fornecedor->razao_social ?></option>
+                                    <option value="<?= $fornecedor->id ?>">
+                                        <?= $fornecedor->nome_fantasia === '' ? $fornecedor->razao_social : $fornecedor->nome_fantasia; ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -51,9 +53,10 @@
                                 <option value="PARCIAL">Parcial</option>
                                 <option value="PAGO">Pago</option>
                                 <option value="CANCELADO">Cancelado</option>
+                                <option value="ATRASADO">Atrasado</option>
                             </select>
                         </div>
-                        <div class="col-md-3 align-self-end">
+                        <div class="col-md-3 align-self-end text-right">
                             <button type="button" class="btn btn-secondary" id="btnFiltrar">
                                 <i class="ti ti-filter"></i> Filtrar
                             </button>
@@ -68,23 +71,25 @@
                     <table id="datatableContasPagar" class="table mb-0" style="width: 100%;">
                         <thead class="thead-light">
                             <tr>
-                                <th>Documento</th>
-                                <th>Fornecedor</th>
-                                <th>Valor</th>
-                                <th>Vencimento</th>
-                                <th>Status</th>
-                                <th>Ações</th>
+                                <th scope="col"class="col-1">Documento</th>
+                                <th scope="col" class="col-3">Fornecedor</th>
+                                <th scope="col">Descrição</th>
+                                <th scope="col" class="col-2 text-right">Valor</th>
+                                <th scope="col" class="col-1">Vencimento</th>
+                                <th scope="col" class="col-1">Status</th>
+                                <th scope="col" class="col-1">Ações</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
                         <tfoot class="thead-light">
                             <tr>
-                                <th>Documento</th>
-                                <th>Fornecedor</th>
-                                <th>Valor</th>
-                                <th>Vencimento</th>
-                                <th>Status</th>
-                                <th>Ações</th>
+                                <th scope="col" class="col-1">Documento</th>
+                                <th scope="col" class="col-3">Fornecedor</th>
+                                <th scope="col">Descrição</th>
+                                <th scope="col" class="col-2 text-right">Valor</th>
+                                <th scope="col" class="col-1">Vencimento</th>
+                                <th scope="col" class="col-1">Status</th>
+                                <th scope="col" class="col-1">Ações</th>
                             </tr>
                         </tfoot>
                     </table>
@@ -95,22 +100,22 @@
 </div>
 
 <!-- Modal Cadastro -->
-<div class="modal fade" id="modalCadastro" tabindex="-1" role="dialog" aria-labelledby="modalForm" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+<div class="modal fade" id="modalCadastro" tabindex="-1" role="dialog" aria-labelledby="modalForm" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-50-width" role="document">
         <div class="modal-content" id="modalCadastroContent"></div>
     </div>
 </div>
 
 <!-- Modal Edição -->
-<div class="modal fade" id="modalEdicao" tabindex="-1" role="dialog" aria-labelledby="modalForm" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+<div class="modal fade" id="modalEdicao" tabindex="-1" role="dialog" aria-labelledby="modalForm" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-50-width" role="document">
         <div class="modal-content" id="modalEdicaoContent"></div>
     </div>
 </div>
 
 <!-- Modal Baixa -->
-<div class="modal fade" id="modalBaixa" tabindex="-1" role="dialog" aria-labelledby="modalForm" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal fade" id="modalBaixa" tabindex="-1" role="dialog" aria-labelledby="modalForm" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-50-width" role="document">
         <div class="modal-content" id="modalBaixaContent"></div>
     </div>
 </div>

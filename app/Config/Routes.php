@@ -9,7 +9,8 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * Controller Home
  */
-$routes->get('/', 'Home::index');
+$routes->add('/', 'Home::dynamicRoute');
+$routes->add('home', 'Home::dynamicRoute');
 
 /**
  * Controller Login
@@ -318,6 +319,8 @@ $routes->group('faturamento', function ($routes) {
  *  Financeiro
  ****************************************************************************************************/
 $routes->group('financeiro', function ($routes) {
+
+    $routes->get('dashboard', 'DashboardFinanceiro::index');    
     /**
      * Controller FormasPagamento
      */
@@ -421,15 +424,16 @@ $routes->group('financeiro', function ($routes) {
     $routes->get('contaspagar', 'ContasPagar::index');
     $routes->get('contaspagar/add', 'ContasPagar::create');
     $routes->get('contaspagar/edit/(:num)', 'ContasPagar::edit/$1');
-    $routes->get('contaspagar/show/(:num)', 'ContasPagar::show/$1');
-    $routes->get('contaspagar/delete/(:num)', 'ContasPagar::delete/$1');
-    $routes->get('contaspagar/undo/(:num)', 'ContasPagar::undo/$1');
+    $routes->get('contaspagar/view/(:num)', 'ContasPagar::view/$1');
+    $routes->get('contaspagar/payable/(:num)', 'ContasPagar::payable/$1');
+    $routes->get('contaspagar/attach/(:num)', 'ContasPagar::attach/$1');
 
     $routes->post('contaspagar/remove/(:num)', 'ContasPagar::remove/$1');
-    $routes->post('contaspagar/restore/(:num)', 'ContasPagar::restore/$1');
     $routes->post('contaspagar/fetch', 'ContasPagar::datatables');
-    $routes->post('contaspagar/insert', 'ContasPagar::insert');
+    $routes->post('contaspagar/store', 'ContasPagar::store');
     $routes->post('contaspagar/update', 'ContasPagar::update');
+    $routes->post('contaspagar/delete', 'ContasPagar::delete');
+    $routes->post('contaspagar/paybill', 'ContasPagar::paybill');
 });
 
 /****************************************************************************************************
@@ -560,3 +564,4 @@ $routes->group('crm', function ($routes) {
     $routes->post('funil/etapas_save', 'FunilVendas::etapas_save');
     $routes->post('funil/etapas_fetch/(:num)', 'FunilVendas::etapas_fetch/$1');
 });
+

@@ -223,7 +223,7 @@
                                             <?php } ?>
                                             <?php if ((userIsLogged()->is_admin) || (userIsLogged()->validatePermissionLoggedUser('listar-contascorrente'))) { ?>
                                                 <li class="<?php echo url_is('financeiro/contascorrente*') ? 'active' : ''; ?>">
-                                                    <a href="<?php echo site_url('/financeiro/contascorrente'); ?>">Contas Corrente</a>
+                                                    <a href="<?php echo site_url('/financeiro/contascorrente'); ?>">Contas Financeiras</a>
                                                 </li>
                                             <?php } ?>
                                         </ul>

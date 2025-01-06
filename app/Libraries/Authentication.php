@@ -51,6 +51,8 @@ class Authentication
     private function setLoggedUserPermissions(object $user)
     {
         $user->is_admin = $this->isAdmin();
+        $user->is_finance = $this->isFinance();
+        $user->is_seller = $this->isSeller();
 
         if ($user->is_admin == true) {
             $user->is_customer = false;
@@ -60,7 +62,7 @@ class Authentication
             $user->is_vendor = $this->isVendor();
         }
 
-        if (($user->is_admin == false) && ($user->is_customer == false) && ($user->is_vendor == false)) {
+        if ($user->is_admin == false) {
             $user->permissions = $this->getLoggedUserPermissions();
         }
 
@@ -200,6 +202,42 @@ class Authentication
         $vendor = $this->userGroupModel->userIsInGroup($vendor_group, session()->get('user_id'));
 
         if ($vendor == null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Método que verifica se o usuário logado é um vendedor
+     * 
+     * @return bool
+     */
+    public function isSeller(): bool
+    {
+        $seller_group = 4;
+
+        $seller = $this->userGroupModel->userIsInGroup($seller_group, session()->get('user_id'));
+
+        if ($seller == null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Método que verifica se o usuário logado faz parte da equipe do financeiro
+     * 
+     * @return bool
+     */
+    public function isFinance(): bool
+    {
+        $finance_group = 5;
+
+        $finance = $this->userGroupModel->userIsInGroup($finance_group, session()->get('user_id'));
+
+        if ($finance == null) {
             return false;
         }
 

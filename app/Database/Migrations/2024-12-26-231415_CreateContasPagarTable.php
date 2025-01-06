@@ -41,6 +41,23 @@ class CreateContasPagarTable extends Migration
                 'type'           => 'DECIMAL',
                 'constraint'     => '10,2',
                 'null'           => false,
+                'default'        => 0,
+            ],
+            'valor_previsto' => [
+                'type'           => 'DECIMAL',
+                'constraint'     => '10,2',
+                'null'           => true,
+                'default'        => 0,
+            ],
+            'valor_desconto' => [
+                'type'           => 'DECIMAL',
+                'constraint'     => '10,2',
+                'default'        => 0,
+            ],
+            'valor_acrescimo' => [
+                'type'           => 'DECIMAL',
+                'constraint'     => '10,2',
+                'default'        => 0,
             ],
             'valor_pago' => [
                 'type'           => 'DECIMAL',
@@ -61,7 +78,7 @@ class CreateContasPagarTable extends Migration
             ],
             'status' => [
                 'type'           => 'ENUM',
-                'constraint'     => ['PENDENTE', 'PARCIAL', 'PAGO', 'CANCELADO'],
+                'constraint'     => ['PENDENTE', 'PARCIAL', 'PAGO', 'CANCELADO', 'ATRASADO'],
                 'default'        => 'PENDENTE',
             ],
             'tipo_conta' => [
@@ -91,6 +108,20 @@ class CreateContasPagarTable extends Migration
                 'unsigned'       => true,
                 'null'           => true,
             ],
+            'conta_corrente_id' => [
+                'type'           => 'INT',
+                'constraint'     => 5,
+                'unsigned'       => true,
+                'null'           => true,
+            ],
+            'previsao' => [
+                'type'    => 'BOOLEAN',
+                'default' => false,
+            ],
+            'active' => [
+                'type'    => 'BOOLEAN',
+                'default' => true,
+            ],
             'created_at' => [
                 'type'           => 'DATETIME',
                 'null'           => true,
@@ -113,6 +144,7 @@ class CreateContasPagarTable extends Migration
         $this->forge->addForeignKey('conta_pai_id', 'contas_pagar', 'id', 'SET NULL', 'RESTRICT');
         $this->forge->addForeignKey('classificacao_conta_id', 'classificacoes_contas', 'id', 'SET NULL', 'RESTRICT');
         $this->forge->addForeignKey('forma_pagamento_id', 'formas_pagamento', 'id', 'SET NULL', 'RESTRICT');
+        $this->forge->addForeignKey('conta_corrente_id', 'contas_corrente', 'id', 'CASCADE', 'SET NULL');
 
         // Criar tabela
         $this->forge->createTable('contas_pagar');

@@ -18,6 +18,9 @@ class ContaPagarModel extends Model
         'numero_documento', 
         'descricao', 
         'valor_total', 
+        'valor_previsto',
+        'valor_desconto', 
+        'valor_acrescimo', 
         'valor_pago', 
         'data_emissao', 
         'data_vencimento', 
@@ -27,18 +30,145 @@ class ContaPagarModel extends Model
         'numero_parcela', 
         'total_parcelas', 
         'classificacao_conta_id', 
-        'forma_pagamento_id'
+        'forma_pagamento_id',
+        'conta_corrente_id',
+        'previsao',
+        'active',
+        'deleted_at',
     ];
-
+    
     // Definição dos campos de data
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at';
 
-    // Relacionamentos
-    protected $with = ['fornecedor', 'classificacaoConta', 'formaPagamento'];
+    // Definir condições padrão para busca
+    protected $beforeFind = ['filterActive'];
 
+    // Adicione um método para depuração
+    public function getFilteredAccounts($conditions)
+    {
+        return $this->where($conditions)
+            ->orderBy('data_vencimento', 'ASC')
+            ->findAll();
+    }
+        
+    public function filterActive(array $params)
+    {
+        // Adicionar condição para buscar apenas registros ativos
+        if (!isset($params['conditions'])) {
+            $params['conditions'] = [];
+        }
+    
+        // Adicionar condição de active apenas se não for uma operação de exclusão
+        if (!isset($params['method']) || $params['method'] !== 'delete') {
+            $params['conditions']['active'] = 1;
+        }
+    
+        return $params;
+    }
+
+    // Método para buscar com todos os registros, incluindo inativos
+    public function withInactive()
+    {
+        // Limpar condições de beforeFind para incluir todos os registros
+        $this->beforeFind = [];
+        
+        // Garantir que a condição de active seja específica para a tabela
+        $this->builder()->resetQuery();
+        
+        return $this;
+    }
+    
+    // Método para buscar todos os registros, incluindo inativos
+    public function findAllWithInactive($limit = null, $offset = 0)
+    {
+        // Remover filtro de ativos temporariamente
+        $this->beforeFind = [];
+        $result = $this->findAll($limit, $offset);
+        
+        // Restaurar filtro de ativos
+        $this->beforeFind = ['filterActive'];
+        
+        return $result;
+    }
+    
+    // Sobrescrever métodos para garantir tratamento correto
+    public function findAll(?int $limit = null, int $offset = 0)
+    {
+        $this->builder()->where('contas_pagar.active', 1);
+        return parent::findAll($limit, $offset);
+    }
+        
+    public function countAllResults(bool $reset = true, bool $test = false): int
+    {
+        $this->builder()->where('contas_pagar.active', 1);
+        return parent::countAllResults($reset, $test);
+    }
+                
+    public function selectSum(string $select, string $alias = null)
+    {
+        $this->builder()->where('contas_pagar.active', 1);
+        
+        // Se nenhum alias for fornecido, usar o nome da coluna como alias
+        if ($alias === null) {
+            $alias = $select;
+        }
+        
+        return parent::selectSum($select, $alias);
+    }
+    
+    // Sobrescrever método de exclusão para usar soft delete
+    public function delete($id = null, bool $purge = false)
+    {
+        // Se purge for true, realizar exclusão permanente
+        if ($purge) {
+            return parent::delete($id, true);
+        }
+    
+        // Soft delete
+        try {
+            $data = [
+                'active' => false,
+                'deleted_at' => date('Y-m-d H:i:s') // Definir timestamp de exclusão
+            ];
+            
+            $resultado = $this->update($id, $data);
+            
+            return $resultado;
+        } catch (\Exception $e) {
+            log_message('error', 'Erro no soft delete: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+    
+    // Método para restaurar registro
+    public function restore($id)
+    {
+        try {
+            $data = [
+                'active' => true,
+                'deleted_at' => null
+            ];
+            
+            $resultado = $this->update($id, $data);
+            
+            return $resultado;
+        } catch (\Exception $e) {
+            log_message('error', 'Erro na restauração: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    // Relacionamentos
+    protected $with = [
+        'fornecedor', 
+        'classificacaoConta', 
+        'formaPagamento', 
+        'contaCorrente'
+    ];
+    
     // Definir relacionamentos
     public function fornecedor()
     {
@@ -55,6 +185,11 @@ class ContaPagarModel extends Model
         return $this->belongsTo(FormaPagamentoModel::class, 'forma_pagamento_id');
     }
 
+    public function contaCorrente()
+    {
+        return $this->belongsTo(ContaCorrente::class, 'conta_corrente_id');
+    }
+        
     public function contaPai()
     {
         return $this->belongsTo(self::class, 'conta_pai_id');
@@ -89,6 +224,75 @@ class ContaPagarModel extends Model
         }
 
         return $contasParcelas;
+    }
+
+    public function createParceladaAccount($data)
+    {
+        // Preparar dados para conta parcelada
+        $dadosContaPai = [
+            'fornecedor_id' => $data['fornecedor_id'],
+            'classificacao_conta_id' => $data['classificacao_conta_id'],
+            'forma_pagamento_id' => $data['forma_pagamento_id'],
+            'valor_total' => $data['valor_total'],
+            'data_vencimento' => $data['data_vencimento'],
+            'numero_documento' => $data['numero_documento'] ?? null,
+            'descricao' => $data['descricao'] ?? null,
+            'tipo_conta' => 'parcelada',
+            'previsao' => $data['previsao'] ?? 0
+        ];
+    
+        // Inserir conta pai
+        $contaPaiId = $this->insert($dadosContaPai);
+        
+        // Retornar objeto da conta pai para usar no cadastro de parcelas
+        return $this->find($contaPaiId);
+    }
+    
+    public function createParcelas($parcelasData)
+    {
+        // Validar dados das parcelas
+        if (empty($parcelasData)) {
+            throw new \Exception('Nenhuma parcela fornecida');
+        }
+    
+        // Inserir parcelas em lote
+        return $this->insertBatch($parcelasData);
+    }
+
+    public function create($data)
+    {
+        // Preparar dados para conta avulsa
+        $dadosConta = [
+            'fornecedor_id' => $data['fornecedor_id'],
+            'classificacao_conta_id' => $data['classificacao_conta_id'],
+            'forma_pagamento_id' => $data['forma_pagamento_id'],
+            'valor_total' => $data['valor_total'],
+            'valor_previsto' => $data['valor_previsto'],
+            'data_vencimento' => $data['data_vencimento'],
+            'data_emissao' => $data['data_emissao'],
+            'numero_documento' => $data['numero_documento'] ?? null,
+            'descricao' => $data['descricao'] ?? null,
+            'tipo_conta' => 'avulsa',
+            'previsao' => $data['previsao'] ?? 0
+        ];
+    
+        // Inserir conta
+        $contaId = $this->insert($dadosConta);
+        
+        // Retornar objeto da conta
+        return $this->find($contaId);
+    }
+    
+    public function updateParcela($parcelaId, $data)
+    {
+        // Validar dados da parcela
+        $dadosValidados = [
+            'valor' => $data['valor'] ?? null,
+            'data_vencimento' => $data['data_vencimento'] ?? null
+        ];
+    
+        // Atualizar parcela
+        return $this->update($parcelaId, $dadosValidados);
     }
 
     /**
@@ -191,4 +395,91 @@ class ContaPagarModel extends Model
 
         return $this->findAll();
     }
+
+    // Método para calcular o saldo remanescente
+    public function calcularSaldoRemanescente($conta, $valorPago, $valorDesconto = 0, $valorAcrescimo = 0)
+    {
+        $valorTotal = $conta->valor_total;
+        $valorLiquido = $valorTotal - $valorDesconto + $valorAcrescimo;
+        $saldoRemanescente = $valorLiquido - $valorPago;
+
+        return $saldoRemanescente > 0 ? $saldoRemanescente : 0;
+    }
+
+    // Método para gerar conta filha de saldo remanescente
+    public function gerarContaFilha($contaOriginal, $saldoRemanescente, $dadosAdicionais = [])
+    {
+        $dadosContaFilha = [
+            'numero_documento' => $contaOriginal->numero_documento . '-SALDO',
+            'fornecedor_id' => $contaOriginal->fornecedor_id,
+            'classificacao_conta_id' => $contaOriginal->classificacao_conta_id,
+            'data_emissao' => date('Y-m-d'),
+            'data_vencimento' => date('Y-m-d', strtotime('+30 days')),
+            'valor_total' => $saldoRemanescente,
+            'descricao' => 'Saldo remanescente de ' . $contaOriginal->descricao,
+            'status' => 'PENDENTE',
+            'tipo_conta' => 'saldo'
+        ];
+
+        // Mesclar dados adicionais
+        $dadosContaFilha = array_merge($dadosContaFilha, $dadosAdicionais);
+
+        return $this->insert($dadosContaFilha);
+    }
+
+    // Método para realizar baixa de conta
+    public function realizarBaixa($id, $dadosBaixa)
+    {
+        try {
+            // Iniciar transação
+            $this->db->transStart();
+
+            // Buscar conta original
+            $conta = $this->find($id);
+
+            if (!$conta) {
+                throw new \Exception('Conta não encontrada');
+            }
+
+            // Calcular saldo remanescente
+            $saldoRemanescente = $this->calcularSaldoRemanescente(
+                $conta, 
+                $dadosBaixa['valor_pago'], 
+                $dadosBaixa['valor_desconto'] ?? 0, 
+                $dadosBaixa['valor_acrescimo'] ?? 0
+            );
+
+            // Preparar dados de atualização
+            $dadosAtualizacao = [
+                'valor_pago' => $dadosBaixa['valor_pago'],
+                'valor_desconto' => $dadosBaixa['valor_desconto'] ?? 0,
+                'valor_acrescimo' => $dadosBaixa['valor_acrescimo'] ?? 0,
+                'data_pagamento' => $dadosBaixa['data_pagamento'],
+                'forma_pagamento_id' => $dadosBaixa['forma_pagamento_id'],
+                'conta_corrente_id' => $dadosBaixa['conta_corrente_id'],
+                'status' => $saldoRemanescente > 0 ? 'PARCIAL' : 'PAGO'
+            ];
+
+            // Atualizar conta
+            $this->update($id, $dadosAtualizacao);
+
+            // Gerar conta filha se houver saldo remanescente
+            if ($saldoRemanescente > 0) {
+                $this->gerarContaFilha($conta, $saldoRemanescente, [
+                    'forma_pagamento_id' => $dadosBaixa['forma_pagamento_id'],
+                    'conta_corrente_id' => $dadosBaixa['conta_corrente_id']
+                ]);
+            }
+
+            // Finalizar transação
+            $this->db->transComplete();
+
+            return $dadosAtualizacao;
+        } catch (\Exception $e) {
+            // Reverter transação em caso de erro
+            $this->db->transRollback();
+            
+            throw $e;
+        }
+    }    
 }

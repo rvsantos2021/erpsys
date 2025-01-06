@@ -55,7 +55,7 @@ class ContasCorrentes extends BaseController
         $data = [
             'menu' => 'Financeiro',
             'submenu' => 'Cadastros',
-            'title' => 'Contas Corrente',
+            'title' => 'Contas Financeiras',
         ];
 
         return view(APP_THEME.$this->viewFolder.'/list', $data);
@@ -118,8 +118,8 @@ class ContasCorrentes extends BaseController
 
         foreach ($contas as $conta) {
             if (APP_THEME == 'mentor') {
-                $act_view = '<button title="Visualizar Conta Corrente" data-id="'.$conta->id.'" data-modulo="view" class="btn btn-sm btn-icon btn-outline-dark btn-round btn-view"><i class="ti ti-eye"></i></button>';
-                $act_edit = '<button title="Editar Conta Corrente" data-id="'.$conta->id.'" data-modulo="edit" class="btn btn-sm btn-icon btn-outline-primary btn-round btn-edit"><i class="ti ti-pencil"></i></button>';
+                $act_view = '<button title="Visualizar Conta Financeira" data-id="'.$conta->id.'" data-modulo="view" class="btn btn-sm btn-icon btn-outline-dark btn-round btn-view"><i class="ti ti-eye"></i></button>';
+                $act_edit = '<button title="Editar Conta Financeira" data-id="'.$conta->id.'" data-modulo="edit" class="btn btn-sm btn-icon btn-outline-primary btn-round btn-edit"><i class="ti ti-pencil"></i></button>';
 
                 $status = ($conta->active == true ? '<span class="btn btn-sm btn-icon btn-round btn-inverse-success"><i class="ti ti-unlock" title="Ativo"></i></span>' : '<span class="btn btn-sm btn-icon btn-round btn-inverse-danger"><i class="ti ti-lock" title="Inativo"></i></span>');
             } else {
@@ -167,7 +167,7 @@ class ContasCorrentes extends BaseController
         $conta = new ContaCorrente();
 
         $data = [
-            'title' => 'Nova Conta Corrente',
+            'title' => 'Nova Conta Financeira',
             'method' => 'insert',
             'viewpath' => APP_THEME.$this->viewFolder,
             'form' => 'form',
@@ -258,7 +258,7 @@ class ContasCorrentes extends BaseController
         $conta = $this->validation_conta($id);
 
         $data = [
-            'title' => 'Editar Conta Corrente',
+            'title' => 'Editar Conta Financeira',
             'method' => 'update',
             'viewpath' => APP_THEME.$this->viewFolder,
             'form' => 'form',
