@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Controllers\BaseController;
 use App\Entities\FormaPagamento;
 
 class FormasPagamento extends BaseController
@@ -15,10 +14,11 @@ class FormasPagamento extends BaseController
 
     /**
      * Método que valida se a forma de pagamento existe. Caso exista retorna um object com os dados da forma de pagamento, caso
-     * não exista, retorna um Exception
-     * 
-     * @param integer $id
-     * @return Object ou Exception
+     * não exista, retorna um Exception.
+     *
+     * @param int $id
+     *
+     * @return object ou Exception
      */
     private function validation_forma(int $id = null)
     {
@@ -36,32 +36,32 @@ class FormasPagamento extends BaseController
     }
 
     /**
-     * Método que retorna a view com todos os registros da tabela
-     * 
+     * Método que retorna a view com todos os registros da tabela.
+     *
      * @return view
      */
     public function index()
     {
         if ($this->getLoggedUserData() == '') {
-            return redirect()->to(site_url("login"))->with("message-info", "Verifique suas credenciais e tente novamente!");
+            return redirect()->to(site_url('login'))->with('message-info', 'Verifique suas credenciais e tente novamente!');
         }
 
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
-        $data = array(
-            'menu'    => 'Financeiro',
+        $data = [
+            'menu' => 'Financeiro',
             'submenu' => 'Cadastros',
-            'title'   => 'Formas de Pagamento',
-        );
+            'title' => 'Formas de Pagamento',
+        ];
 
-        return view($this->viewFolder . '/list', $data);
+        return view(APP_THEME.$this->viewFolder.'/list', $data);
     }
 
     /**
-     * Metodo chamado via AJAX que retorna um JSON com os dados de todos as formas de pagamento
-     * 
+     * Metodo chamado via AJAX que retorna um JSON com os dados de todos as formas de pagamento.
+     *
      * @return JSON
      */
     public function fetch()
@@ -70,7 +70,7 @@ class FormasPagamento extends BaseController
             return redirect()->back();
         }
 
-        $columns = array(
+        $columns = [
             0 => 'formas_pagamento.id',
             1 => 'formas_pagamento.nome',
             2 => 'formas_pagamento.financeiro',
@@ -78,11 +78,11 @@ class FormasPagamento extends BaseController
             4 => 'formas_pagamento.contas_receber',
             5 => 'formas_pagamento.contas_pagar',
             6 => 'formas_pagamento.active',
-        );
+        ];
 
-        $draw = isset($_POST['draw']) ? (int)$_POST['draw'] : 10;
-        $start = isset($_POST['start']) ? (int)$_POST['start'] : 0;
-        $rowPerPage = isset($_POST['length']) ? (int)$_POST['length'] : 10;
+        $draw = isset($_POST['draw']) ? (int) $_POST['draw'] : 10;
+        $start = isset($_POST['start']) ? (int) $_POST['start'] : 0;
+        $rowPerPage = isset($_POST['length']) ? (int) $_POST['length'] : 10;
         $columnIndex = isset($_POST['order'][0]['column']) ? $_POST['order'][0]['column'] : 0;
         $orderColumn = isset($_POST['columns'][$columnIndex]['data']) ? $_POST['columns'][$columnIndex]['data'] : 0;
         $orderDir = isset($_POST['order']) ? $_POST['order'][0]['dir'] : '';
@@ -101,25 +101,34 @@ class FormasPagamento extends BaseController
             $orderColumn = 0;
         }
 
-        $params_array = array(
+        $params_array = [
             'start' => $start,
             'rowperpage' => $rowPerPage,
             'search' => $search,
             'order' => $columns[$orderColumn],
             'dir' => $orderDir,
-        );
+        ];
 
         $formas = $this->formaModel->getFormasPagamento($params_array);
         $rowsTotal = $this->formaModel->countFormasPagamento($search);
 
         $rows = 0;
-        $data = array();
+        $data = [];
 
         foreach ($formas as $forma) {
-            $act_view  = '<button data-toggle="tooltip" data-original-title="Visualizar" title="Visualizar" data-id="' . $forma->id . '" data-modulo="view" class="btn btn-xs btn-default text-primary btn-width-27 btn-view"><i class="fa fa-eye"></i></button>';
-            $act_edit  = '<button data-toggle="tooltip" data-original-title="Editar" title="Editar" data-id="' . $forma->id . '" data-modulo="edit" class="btn btn-xs btn-default btn-width-27 btn-edit"><i class="fas fa-edit"></i></button>';
+            if (APP_THEME == 'mentor') {
+                $act_view = '<button title="Visualizar Forma de Pagamento" data-id="'.$forma->id.'" data-modulo="view" class="btn btn-sm btn-icon btn-outline-dark btn-round btn-view"><i class="ti ti-eye"></i></button>';
+                $act_edit = '<button title="Editar Forma de Pagamento" data-id="'.$forma->id.'" data-modulo="edit" class="btn btn-sm btn-icon btn-outline-primary btn-round btn-edit"><i class="ti ti-pencil"></i></button>';
 
-            $sub_array = array();
+                $status = ($forma->active == true ? '<span class="btn btn-sm btn-icon btn-round btn-inverse-success"><i class="ti ti-unlock" title="Ativo"></i></span>' : '<span class="btn btn-sm btn-icon btn-round btn-inverse-danger"><i class="ti ti-lock" title="Inativo"></i></span>');
+            } else {
+                $act_view = '<button data-toggle="tooltip" data-original-title="Visualizar" title="Visualizar" data-id="'.$forma->id.'" data-modulo="view" class="btn btn-xs btn-default text-primary btn-width-27 btn-view"><i class="fa fa-eye"></i></button>';
+                $act_edit = '<button data-toggle="tooltip" data-original-title="Editar" title="Editar" data-id="'.$forma->id.'" data-modulo="edit" class="btn btn-xs btn-default btn-width-27 btn-edit"><i class="fas fa-edit"></i></button>';
+
+                $status = ($forma->active == true ? '<span class="btn btn-xs btn-default rounded-circle-custom text-success" data-toggle="tooltip" data-original-title="Ativo"><i class="fa fa-unlock" title="Ativo"></i></span>' : '<span class="btn btn-xs btn-default rounded-circle-custom text-danger" data-toggle="tooltip" data-original-title="Inativo"><i class="fa fa-lock" title="Inativo"></i></span>');
+            }
+
+            $sub_array = [];
 
             $sub_array[] = $forma->id;
             $sub_array[] = $forma->nome;
@@ -127,52 +136,51 @@ class FormasPagamento extends BaseController
             $sub_array[] = ($forma->desconto == true ? '<span class="btn btn-xs btn-default rounded-circle-custom text-success" data-toggle="tooltip" data-original-title="Sim"><i class="fa fa-check" title="Sim"></i></span>' : '<span class="btn btn-xs btn-default rounded-circle-custom text-danger" data-toggle="tooltip" data-original-title="Não"><i class="fa fa-times" title="Não"></i></span>');
             $sub_array[] = ($forma->contas_receber == true ? '<span class="btn btn-xs btn-default rounded-circle-custom text-success" data-toggle="tooltip" data-original-title="Sim"><i class="fa fa-check" title="Sim"></i></span>' : '<span class="btn btn-xs btn-default rounded-circle-custom text-danger" data-toggle="tooltip" data-original-title="Não"><i class="fa fa-times" title="Não"></i></span>');
             $sub_array[] = ($forma->contas_pagar == true ? '<span class="btn btn-xs btn-default rounded-circle-custom text-success" data-toggle="tooltip" data-original-title="Sim"><i class="fa fa-check" title="Sim"></i></span>' : '<span class="btn btn-xs btn-default rounded-circle-custom text-danger" data-toggle="tooltip" data-original-title="Não"><i class="fa fa-times" title="Não"></i></span>');
-            $sub_array[] = ($forma->active == true ? '<span class="btn btn-xs btn-default rounded-circle-custom text-success" data-toggle="tooltip" data-original-title="Ativo"><i class="fa fa-unlock" title="Ativo"></i></span>' : '<span class="btn btn-xs btn-default rounded-circle-custom text-danger" data-toggle="tooltip" data-original-title="Inativo"><i class="fa fa-lock" title="Inativo"></i></span>');
-            $sub_array[] = $act_view . $act_edit . $forma->buttonsControl();
+            $sub_array[] = $status;
+            $sub_array[] = $act_view.$act_edit.$forma->buttonsControl();
 
             $data[] = $sub_array;
-            $rows++;
+            ++$rows;
         }
 
-        $json = array(
+        $json = [
             'draw' => intval($draw),
             'recordsTotal' => intval($rowsTotal),
             'recordsFiltered' => intval($rowsTotal),
             'data' => $data,
-        );
+        ];
 
         echo json_encode($json);
     }
 
     /**
-     * Método que retorna a view de inclusão de forma de pagamento
-     * 
+     * Método que retorna a view de inclusão de forma de pagamento.
+     *
      * @return view
      */
     public function add()
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $forma = new FormaPagamento();
 
-        $data = array(
-            'title'    => 'Nova Forma de Pagamento',
-            'method'   => 'insert',
-            'viewpath' => APP_THEME . $this->viewFolder,
-            'form'     => 'form',
+        $data = [
+            'title' => 'Nova Forma de Pagamento',
+            'method' => 'insert',
+            'viewpath' => APP_THEME.$this->viewFolder,
+            'form' => 'form',
             'response' => 'response',
-            'table'    => $forma,
-        );
+            'table' => $forma,
+        ];
 
-        // return view($this->viewFolder . '/_add', $data);
-        return view(APP_THEME . '/layout/modals/_modal', $data);
+        return view(APP_THEME.'/layout/modals/_modal', $data);
     }
 
     /**
-     * Método que faz o insert dos dados da forma de pagamento
-     * 
+     * Método que faz o insert dos dados da forma de pagamento.
+     *
      * @return json
      */
     public function insert()
@@ -258,35 +266,35 @@ class FormasPagamento extends BaseController
     }
 
     /**
-     * Método que retorna a view de edição dos dados da forma de pagamento
-     * 
+     * Método que retorna a view de edição dos dados da forma de pagamento.
+     *
      * @param $id
+     *
      * @return view
      */
     public function edit(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $forma = $this->validation_forma($id);
 
-        $data = array(
-            'title'    => 'Editar Forma de Pagamento',
-            'method'   => 'update',
-            'viewpath' => APP_THEME . $this->viewFolder,
-            'form'     => 'form',
+        $data = [
+            'title' => 'Editar Forma de Pagamento',
+            'method' => 'update',
+            'viewpath' => APP_THEME.$this->viewFolder,
+            'form' => 'form',
             'response' => 'response',
-            'table'    => $forma,
-        );
+            'table' => $forma,
+        ];
 
-        // return view($this->viewFolder . '/_edit', $data);
-        return view(APP_THEME . '/layout/modals/_modal', $data);
+        return view(APP_THEME.'/layout/modals/_modal', $data);
     }
 
     /**
-     * Método que faz o update dos dados da forma de pagamento
-     * 
+     * Método que faz o update dos dados da forma de pagamento.
+     *
      * @return json
      */
     public function update()
@@ -368,32 +376,34 @@ class FormasPagamento extends BaseController
     }
 
     /**
-     * Método que retorna a view de deleção da forma de pagamento
-     * 
+     * Método que retorna a view de deleção da forma de pagamento.
+     *
      * @param $id
+     *
      * @return view
      */
     public function delete(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $forma = $this->validation_forma($id);
 
-        $data = array(
-            'title'  => 'Excluir',
+        $data = [
+            'title' => 'Excluir',
             'method' => 'delete',
-            'forma'  => $forma,
-        );
+            'table' => $forma,
+        ];
 
-        return view($this->viewFolder . '/_delete', $data);
+        return view(APP_THEME.$this->viewFolder.'/_delete', $data);
     }
 
     /**
-     * Método que faz a deleção da forma de pagamento
-     * 
+     * Método que faz a deleção da forma de pagamento.
+     *
      * @param $id
+     *
      * @return redirect
      */
     public function remove(int $id = null)
@@ -422,37 +432,39 @@ class FormasPagamento extends BaseController
 
     /**
      * Método que retorna a view de restore da forma de pagamento.
-     * 
+     *
      * @param $id
+     *
      * @return view
      */
     public function undo(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $forma = $this->validation_forma($id);
 
         $data = [
-            'title'  => 'Restaurar',
+            'title' => 'Restaurar',
             'method' => 'restore',
-            'forma'  => $forma,
+            'table' => $forma,
         ];
 
-        return view($this->viewFolder . '/_restore', $data);
+        return view(APP_THEME.$this->viewFolder.'/_restore', $data);
     }
 
     /**
-     * Método que faz o restore da forma de pagamento
-     * 
+     * Método que faz o restore da forma de pagamento.
+     *
      * @param $id
+     *
      * @return redirect
      */
     public function restore(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $forma = $this->validation_forma($id);
@@ -473,24 +485,25 @@ class FormasPagamento extends BaseController
     }
 
     /**
-     * Método que retorna a view de visualização dos dados da forma de pagamento
-     * 
+     * Método que retorna a view de visualização dos dados da forma de pagamento.
+     *
      * @param $id
+     *
      * @return view
      */
     public function show(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $forma = $this->validation_forma($id);
 
-        $data = array(
+        $data = [
             'title' => 'Visualizar',
-            'forma' => $forma,
-        );
+            'table' => $forma,
+        ];
 
-        return view($this->viewFolder . '/_show', $data);
+        return view(APP_THEME.$this->viewFolder.'/_show', $data);
     }
 }

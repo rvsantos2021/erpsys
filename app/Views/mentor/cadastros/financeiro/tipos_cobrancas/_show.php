@@ -1,7 +1,7 @@
                 <div class="form-row">
                     <div class="form-group col-md-3">
                         <div class="text-center">
-                            <img class="img-fluid" src="<?php echo site_url('assets/images/avatar-modelo.png'); ?>" alt="Modelo" />
+                            <img class="img-fluid" src="<?php echo site_url('assets/images/avatar-tipo-cobranca.png'); ?>" alt="Tipo de Cobrança" />
                         </div>
                     </div>
                     <div class="form-group col-md-9">
@@ -9,7 +9,7 @@
                             <legend class="legend"> <i class="fa fa-bookmark"></i> Dados Gerais</legend>
                             <div class="form-row">
                                 <div class="form-group col-md-12">
-                                    <label>Nome</label>
+                                    <label>Descrição</label>
                                     <input type="text" class="form-control" name="descricao" value="<?php echo $table->descricao; ?>" disabled />
                                 </div>
                             </div>

@@ -198,17 +198,17 @@
                                         <ul aria-expanded="false">
                                             <?php if ((userIsLogged()->is_admin) || (userIsLogged()->validatePermissionLoggedUser('listar-condicoespgto'))) { ?>
                                                 <li class="<?php echo url_is('financeiro/condicoespgto*') ? 'active' : ''; ?>">
-                                                    <a href="<?php echo site_url('/financeiro/condicoespgto'); ?>">Condições de Pagamento</a>
+                                                    <a href="<?php echo site_url('/financeiro/condicoespgto'); ?>">Cond. Pagamento</a>
                                                 </li>
                                             <?php } ?>
                                             <?php if ((userIsLogged()->is_admin) || (userIsLogged()->validatePermissionLoggedUser('listar-formaspgto'))) { ?>
                                                 <li class="<?php echo url_is('financeiro/formaspgto*') ? 'active' : ''; ?>">
-                                                    <a href="<?php echo site_url('/financeiro/formaspgto'); ?>">Formas de Pagamento</a>
+                                                    <a href="<?php echo site_url('/financeiro/formaspgto'); ?>">Formas Pagamento</a>
                                                 </li>
                                             <?php } ?>
                                             <?php if ((userIsLogged()->is_admin) || (userIsLogged()->validatePermissionLoggedUser('listar-classificacoescontas'))) { ?>
                                                 <li class="<?php echo url_is('financeiro/classificacoescontas*') ? 'active' : ''; ?>">
-                                                    <a href="<?php echo site_url('/financeiro/classificacoescontas'); ?>">Classificações de Contas</a>
+                                                    <a href="<?php echo site_url('/financeiro/classificacoescontas'); ?>">Classificação Contas</a>
                                                 </li>
                                             <?php } ?>
                                             <?php if ((userIsLogged()->is_admin) || (userIsLogged()->validatePermissionLoggedUser('listar-tiposcobranca'))) { ?>
@@ -223,7 +223,7 @@
                                             <?php } ?>
                                             <?php if ((userIsLogged()->is_admin) || (userIsLogged()->validatePermissionLoggedUser('listar-contascorrente'))) { ?>
                                                 <li class="<?php echo url_is('financeiro/contascorrente*') ? 'active' : ''; ?>">
-                                                    <a href="<?php echo site_url('/financeiro/contascorrente'); ?>">Contas Corrente</a>
+                                                    <a href="<?php echo site_url('/financeiro/contascorrente'); ?>">Contas Financeiras</a>
                                                 </li>
                                             <?php } ?>
                                         </ul>

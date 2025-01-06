@@ -13,7 +13,7 @@
     <div class="col-lg-12">
         <div class="card card-statistics">
             <div class="card-header">
-                <button data-toggle="tooltip" data-original-title="Incluir Modelo" data-modulo="add" class="btn btn-sm btn-square btn-inverse-success fixed-button-width float-right btn-add">
+                <button data-toggle="tooltip" data-original-title="Incluir Tipo de Cobrança" data-modulo="add" class="btn btn-sm btn-square btn-inverse-success fixed-button-width float-right btn-add">
                     <i class="ti ti-plus"></i> Incluir
                 </button>
             </div>
@@ -56,7 +56,7 @@
 
 <!-- begin modalView -->
 <div class="modal fade" id="modalView" tabindex="-1" role="dialog" aria-labelledby="modalView" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="min-width: 50%">
         <?php echo $this->include('mentor/layout/modals/_modalview'); ?>
     </div>
 </div>
@@ -73,6 +73,6 @@
 
 <?php echo $this->section('scripts'); ?>
 <!-- custom app -->
-<script src="<?php echo site_url('mentor/assets/'); ?>js/estoque/modelos.js"></script>
-<script src="<?php echo site_url('mentor/assets/'); ?>js/common.js" data-route="modelos"></script>
+<script src="<?php echo site_url('mentor/assets/'); ?>js/financeiro/tipos-cobrancas.js"></script>
+<script src="<?php echo site_url('mentor/assets/'); ?>js/common.js" data-route="tiposcobranca"></script>
 <?php echo $this->endSection(); ?>

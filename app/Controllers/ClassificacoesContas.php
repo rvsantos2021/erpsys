@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Controllers\BaseController;
 use App\Entities\ClassificacaoConta;
 
 class ClassificacoesContas extends BaseController
@@ -15,10 +14,11 @@ class ClassificacoesContas extends BaseController
 
     /**
      * Método que valida se a classificação existe. Caso exista retorna um object com os dados da classificação, caso
-     * não exista, retorna um Exception
-     * 
-     * @param integer $id
-     * @return Object ou Exception
+     * não exista, retorna um Exception.
+     *
+     * @param int $id
+     *
+     * @return object ou Exception
      */
     private function validation_classificacao(int $id = null)
     {
@@ -36,32 +36,32 @@ class ClassificacoesContas extends BaseController
     }
 
     /**
-     * Método que retorna a view com todos os registros da tabela
-     * 
+     * Método que retorna a view com todos os registros da tabela.
+     *
      * @return view
      */
     public function index()
     {
         if ($this->getLoggedUserData() == '') {
-            return redirect()->to(site_url("login"))->with("message-info", "Verifique suas credenciais e tente novamente!");
+            return redirect()->to(site_url('login'))->with('message-info', 'Verifique suas credenciais e tente novamente!');
         }
 
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
-        $data = array(
-            'menu'    => 'Financeiro',
+        $data = [
+            'menu' => 'Financeiro',
             'submenu' => 'Cadastros',
-            'title'   => 'Classificações de Contas',
-        );
+            'title' => 'Classificações de Contas',
+        ];
 
-        return view($this->viewFolder . '/list', $data);
+        return view(APP_THEME.$this->viewFolder.'/list', $data);
     }
 
     /**
-     * Metodo chamado via AJAX que retorna um JSON com os dados de todas as classificações
-     * 
+     * Metodo chamado via AJAX que retorna um JSON com os dados de todas as classificações.
+     *
      * @return JSON
      */
     public function fetch()
@@ -70,16 +70,16 @@ class ClassificacoesContas extends BaseController
             return redirect()->back();
         }
 
-        $columns = array(
+        $columns = [
             0 => 'classificacoes_contas.codigo',
             1 => 'classificacoes_contas.descricao',
             2 => 'classificacoes_contas.tipo',
             3 => 'classificacoes_contas.active',
-        );
+        ];
 
-        $draw = isset($_POST['draw']) ? (int)$_POST['draw'] : 10;
-        $start = isset($_POST['start']) ? (int)$_POST['start'] : 0;
-        $rowPerPage = isset($_POST['length']) ? (int)$_POST['length'] : 10;
+        $draw = isset($_POST['draw']) ? (int) $_POST['draw'] : 10;
+        $start = isset($_POST['start']) ? (int) $_POST['start'] : 0;
+        $rowPerPage = isset($_POST['length']) ? (int) $_POST['length'] : 10;
         $columnIndex = isset($_POST['order'][0]['column']) ? $_POST['order'][0]['column'] : 0;
         $orderColumn = isset($_POST['columns'][$columnIndex]['data']) ? $_POST['columns'][$columnIndex]['data'] : 0;
         $orderDir = isset($_POST['order']) ? $_POST['order'][0]['dir'] : '';
@@ -98,91 +98,98 @@ class ClassificacoesContas extends BaseController
             $orderColumn = 0;
         }
 
-        $params_array = array(
+        $params_array = [
             'start' => $start,
             'rowperpage' => $rowPerPage,
             'search' => $search,
             'order' => $columns[$orderColumn],
             'dir' => $orderDir,
-        );
+        ];
 
         $classificacaos = $this->classificacaoModel->getClassificacoes($params_array);
         $rowsTotal = $this->classificacaoModel->countClassificacoes($search);
 
         $rows = 0;
-        $data = array();
+        $data = [];
 
         foreach ($classificacaos as $classificacao) {
-            $act_view  = '<button data-toggle="tooltip" data-original-title="Visualizar Classificação" title="Visualizar Classificação" data-id="' . $classificacao->id . '" data-modulo="view" class="btn btn-xs btn-default text-primary btn-width-27 btn-view"><i class="fa fa-eye"></i></button>';
-            $act_edit  = '<button data-toggle="tooltip" data-original-title="Editar Classificação" title="Editar Classificação" data-id="' . $classificacao->id . '" data-modulo="edit" class="btn btn-xs btn-default btn-width-27 btn-edit"><i class="fas fa-edit"></i></button>';
+            if (APP_THEME == 'mentor') {
+                $act_view = '<button title="Visualizar Classificação" data-id="'.$classificacao->id.'" data-modulo="view" class="btn btn-sm btn-icon btn-outline-dark btn-round btn-view"><i class="ti ti-eye"></i></button>';
+                $act_edit = '<button title="Editar Classificação" data-id="'.$classificacao->id.'" data-modulo="edit" class="btn btn-sm btn-icon btn-outline-primary btn-round btn-edit"><i class="ti ti-pencil"></i></button>';
 
+                $status = ($classificacao->active == true ? '<span class="btn btn-sm btn-icon btn-round btn-inverse-success"><i class="ti ti-unlock" title="Ativo"></i></span>' : '<span class="btn btn-sm btn-icon btn-round btn-inverse-danger"><i class="ti ti-lock" title="Inativo"></i></span>');
+            } else {
+                $act_view = '<button data-toggle="tooltip" data-original-title="Visualizar Classificação" title="Visualizar Classificação" data-id="'.$classificacao->id.'" data-modulo="view" class="btn btn-xs btn-default text-primary btn-width-27 btn-view"><i class="fa fa-eye"></i></button>';
+                $act_edit = '<button data-toggle="tooltip" data-original-title="Editar Classificação" title="Editar Classificação" data-id="'.$classificacao->id.'" data-modulo="edit" class="btn btn-xs btn-default btn-width-27 btn-edit"><i class="fas fa-edit"></i></button>';
+
+                $status = ($classificacao->active == true ? '<span class="btn btn-xs btn-default rounded-circle-custom text-success" data-toggle="tooltip" data-original-title="Ativo"><i class="fa fa-unlock" title="Ativo"></i></span>' : '<span class="btn btn-xs btn-default rounded-circle-custom text-danger" data-toggle="tooltip" data-original-title="Inativo"><i class="fa fa-lock" title="Inativo"></i></span>');
+            }
 
             if (($classificacao->id_pai == null) || ($classificacao->id_pai == 0)) {
                 $style = '';
-            } else if (substr_count($classificacao->codigo, '.') == 1) {
+            } elseif (substr_count($classificacao->codigo, '.') == 1) {
                 $style = 'tab1';
-            } else if (substr_count($classificacao->codigo, '.') == 2) {
+            } elseif (substr_count($classificacao->codigo, '.') == 2) {
                 $style = 'tab2';
-            } else if (substr_count($classificacao->codigo, '.') == 3) {
+            } elseif (substr_count($classificacao->codigo, '.') == 3) {
                 $style = 'tab3';
-            } else if (substr_count($classificacao->codigo, '.') == 4) {
+            } elseif (substr_count($classificacao->codigo, '.') == 4) {
                 $style = 'tab4';
-            } else if (substr_count($classificacao->codigo, '.') == 5) {
+            } elseif (substr_count($classificacao->codigo, '.') == 5) {
                 $style = 'tab5';
             }
 
-            $sub_array = array();
+            $sub_array = [];
 
-            $sub_array[] = ($style == '' ? $classificacao->codigo : '<' . $style . '>' . $classificacao->codigo . '</' . $style . '>');
-            $sub_array[] = ($style == '' ? $classificacao->descricao : '<' . $style . '>' . $classificacao->descricao . '</' . $style . '>');
+            $sub_array[] = ($style == '' ? $classificacao->codigo : '<'.$style.'>'.$classificacao->codigo.'</'.$style.'>');
+            $sub_array[] = ($style == '' ? $classificacao->descricao : '<'.$style.'>'.$classificacao->descricao.'</'.$style.'>');
             $sub_array[] = ($classificacao->tipo == 'P' ? '<span class="label label-danger">Despesa</span>' : '<span class="label label-success">Receita</span>');
-            $sub_array[] = ($classificacao->active == true ? '<span class="btn btn-xs btn-default rounded-circle-custom text-success" data-toggle="tooltip" data-original-title="Ativo"><i class="fa fa-unlock" title="Ativo"></i></span>' : '<span class="btn btn-xs btn-default rounded-circle-custom text-danger" data-toggle="tooltip" data-original-title="Inativo"><i class="fa fa-lock" title="Inativo"></i></span>');
-            $sub_array[] = $act_view . $act_edit . $classificacao->buttonsControl();
+            $sub_array[] = $status;
+            $sub_array[] = $act_view.$act_edit.$classificacao->buttonsControl();
 
             $data[] = $sub_array;
-            $rows++;
+            ++$rows;
         }
 
-        $json = array(
+        $json = [
             'draw' => intval($draw),
             'recordsTotal' => intval($rowsTotal),
             'recordsFiltered' => intval($rowsTotal),
             'data' => $data,
-        );
+        ];
 
         echo json_encode($json);
     }
 
     /**
-     * Método que retorna a view de inclusão de classificação
-     * 
+     * Método que retorna a view de inclusão de classificação.
+     *
      * @return view
      */
     public function add()
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $classificacao = new ClassificacaoConta();
 
-        $data = array(
-            'title'          => 'Nova Classificação',
-            'method'         => 'insert',
-            'viewpath'       => APP_THEME . $this->viewFolder,
-            'form'           => 'form',
-            'response'       => 'response',
-            'table'          => $classificacao,
+        $data = [
+            'title' => 'Nova Classificação',
+            'method' => 'insert',
+            'viewpath' => APP_THEME.$this->viewFolder,
+            'form' => 'form',
+            'response' => 'response',
+            'table' => $classificacao,
             'classificacoes' => $this->classificacaoModel->getAllClassificacoes(),
-        );
+        ];
 
-        // return view($this->viewFolder . '/_add', $data);
-        return view(APP_THEME . '/layout/modals/_modal', $data);
+        return view(APP_THEME.'/layout/modals/_modal', $data);
     }
 
     /**
-     * Método que faz o insert dos dados da classificação
-     * 
+     * Método que faz o insert dos dados da classificação.
+     *
      * @return json
      */
     public function insert()
@@ -247,38 +254,38 @@ class ClassificacoesContas extends BaseController
     }
 
     /**
-     * Método que retorna a view de edição dos dados da classificação
-     * 
+     * Método que retorna a view de edição dos dados da classificação.
+     *
      * @param $id
+     *
      * @return view
      */
     public function edit(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         helper('form');
 
         $classificacao = $this->validation_classificacao($id);
 
-        $data = array(
-            'title'          => 'Editar Classificação',
-            'method'         => 'update',
-            'viewpath'       => APP_THEME . $this->viewFolder,
-            'form'           => 'form',
-            'response'       => 'response',
-            'table'          => $classificacao,
+        $data = [
+            'title' => 'Editar Classificação',
+            'method' => 'update',
+            'viewpath' => APP_THEME.$this->viewFolder,
+            'form' => 'form',
+            'response' => 'response',
+            'table' => $classificacao,
             'classificacoes' => $this->classificacaoModel->getAllClassificacoes(),
-        );
+        ];
 
-        // return view($this->viewFolder . '/_edit', $data);
-        return view(APP_THEME . '/layout/modals/_modal', $data);
+        return view(APP_THEME.'/layout/modals/_modal', $data);
     }
 
     /**
-     * Método que faz o update dos dados da classificação
-     * 
+     * Método que faz o update dos dados da classificação.
+     *
      * @return json
      */
     public function update()
@@ -344,32 +351,34 @@ class ClassificacoesContas extends BaseController
     }
 
     /**
-     * Método que retorna a view de deleção da classificação
-     * 
+     * Método que retorna a view de deleção da classificação.
+     *
      * @param $id
+     *
      * @return view
      */
     public function delete(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $classificacao = $this->validation_classificacao($id);
 
-        $data = array(
-            'title'         => 'Excluir',
-            'method'        => 'delete',
-            'classificacao' => $classificacao,
-        );
+        $data = [
+            'title' => 'Excluir',
+            'method' => 'delete',
+            'table' => $classificacao,
+        ];
 
-        return view($this->viewFolder . '/_delete', $data);
+        return view(APP_THEME.$this->viewFolder.'/_delete', $data);
     }
 
     /**
-     * Método que faz a deleção da classificação
-     * 
+     * Método que faz a deleção da classificação.
+     *
      * @param $id
+     *
      * @return redirect
      */
     public function remove(int $id = null)
@@ -397,38 +406,40 @@ class ClassificacoesContas extends BaseController
     }
 
     /**
-     * Método que retorna a view de restore da classificação
-     * 
+     * Método que retorna a view de restore da classificação.
+     *
      * @param $id
+     *
      * @return view
      */
     public function undo(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $classificacao = $this->validation_classificacao($id);
 
         $data = [
-            'title'         => 'Restaurar',
-            'method'        => 'restore',
-            'classificacao' => $classificacao,
+            'title' => 'Restaurar',
+            'method' => 'restore',
+            'table' => $classificacao,
         ];
 
-        return view($this->viewFolder . '/_restore', $data);
+        return view(APP_THEME.$this->viewFolder.'/_restore', $data);
     }
 
     /**
-     * Método que faz o restore da classificação
-     * 
+     * Método que faz o restore da classificação.
+     *
      * @param $id
+     *
      * @return redirect
      */
     public function restore(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $classificacao = $this->validation_classificacao($id);
@@ -449,24 +460,26 @@ class ClassificacoesContas extends BaseController
     }
 
     /**
-     * Método que retorna a view de visualização dos dados da classificação
-     * 
+     * Método que retorna a view de visualização dos dados da classificação.
+     *
      * @param $id
+     *
      * @return view
      */
     public function show(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $classificacao = $this->validation_classificacao($id);
 
-        $data = array(
-            'title'         => 'Visualizar',
-            'classificacao' => $classificacao,
-        );
+        $data = [
+            'title' => 'Visualizar',
+            'table' => $classificacao,
+            'classificacoes' => $this->classificacaoModel->getAllClassificacoes(),
+        ];
 
-        return view($this->viewFolder . '/_show', $data);
+        return view(APP_THEME.$this->viewFolder.'/_show', $data);
     }
 }

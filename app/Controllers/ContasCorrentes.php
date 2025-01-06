@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Controllers\BaseController;
 use App\Entities\ContaCorrente;
 
 class ContasCorrentes extends BaseController
@@ -16,10 +15,11 @@ class ContasCorrentes extends BaseController
 
     /**
      * Método que valida se a conta corrente existe. Caso exista retorna um object com os dados da conta corrente, caso
-     * não exista, retorna um Exception
-     * 
-     * @param integer $id
-     * @return Object ou Exception
+     * não exista, retorna um Exception.
+     *
+     * @param int $id
+     *
+     * @return object ou Exception
      */
     private function validation_conta(int $id = null)
     {
@@ -38,32 +38,32 @@ class ContasCorrentes extends BaseController
     }
 
     /**
-     * Método que retorna a view com todos os registros da tabela
-     * 
+     * Método que retorna a view com todos os registros da tabela.
+     *
      * @return view
      */
     public function index()
     {
         if ($this->getLoggedUserData() == '') {
-            return redirect()->to(site_url("login"))->with("message-info", "Verifique suas credenciais e tente novamente!");
+            return redirect()->to(site_url('login'))->with('message-info', 'Verifique suas credenciais e tente novamente!');
         }
 
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
-        $data = array(
-            'menu'    => 'Financeiro',
+        $data = [
+            'menu' => 'Financeiro',
             'submenu' => 'Cadastros',
-            'title'   => 'Contas Corrente',
-        );
+            'title' => 'Contas Financeiras',
+        ];
 
-        return view($this->viewFolder . '/list', $data);
+        return view(APP_THEME.$this->viewFolder.'/list', $data);
     }
 
     /**
-     * Metodo chamado via AJAX que retorna um JSON com os dados de todas as contas corrente
-     * 
+     * Metodo chamado via AJAX que retorna um JSON com os dados de todas as contas corrente.
+     *
      * @return JSON
      */
     public function fetch()
@@ -72,18 +72,18 @@ class ContasCorrentes extends BaseController
             return redirect()->back();
         }
 
-        $columns = array(
+        $columns = [
             0 => 'contas_corrente.id',
             1 => 'bancos.descricao',
             2 => 'contas_corrente.agencia',
             3 => 'contas_corrente.numero',
             4 => 'contas_corrente.descricao',
             5 => 'contas_corrente.active',
-        );
+        ];
 
-        $draw = isset($_POST['draw']) ? (int)$_POST['draw'] : 10;
-        $start = isset($_POST['start']) ? (int)$_POST['start'] : 0;
-        $rowPerPage = isset($_POST['length']) ? (int)$_POST['length'] : 10;
+        $draw = isset($_POST['draw']) ? (int) $_POST['draw'] : 10;
+        $start = isset($_POST['start']) ? (int) $_POST['start'] : 0;
+        $rowPerPage = isset($_POST['length']) ? (int) $_POST['length'] : 10;
         $columnIndex = isset($_POST['order'][0]['column']) ? $_POST['order'][0]['column'] : 0;
         $orderColumn = isset($_POST['columns'][$columnIndex]['data']) ? $_POST['columns'][$columnIndex]['data'] : 0;
         $orderDir = isset($_POST['order']) ? $_POST['order'][0]['dir'] : '';
@@ -102,78 +102,86 @@ class ContasCorrentes extends BaseController
             $orderColumn = 0;
         }
 
-        $params_array = array(
+        $params_array = [
             'start' => $start,
             'rowperpage' => $rowPerPage,
             'search' => $search,
             'order' => $columns[$orderColumn],
             'dir' => $orderDir,
-        );
+        ];
 
         $contas = $this->contaModel->getContas($params_array);
         $rowsTotal = $this->contaModel->countContas($search);
 
         $rows = 0;
-        $data = array();
+        $data = [];
 
         foreach ($contas as $conta) {
-            $act_view  = '<button data-toggle="tooltip" data-original-title="Visualizar Conta" title="Visualizar Conta" data-id="' . $conta->id . '" data-modulo="view" class="btn btn-xs btn-default text-primary btn-width-27 btn-view"><i class="fa fa-eye"></i></button>';
-            $act_edit  = '<button data-toggle="tooltip" data-original-title="Editar Conta" title="Editar Conta" data-id="' . $conta->id . '" data-modulo="edit" class="btn btn-xs btn-default btn-width-27 btn-edit"><i class="fas fa-edit"></i></button>';
+            if (APP_THEME == 'mentor') {
+                $act_view = '<button title="Visualizar Conta Financeira" data-id="'.$conta->id.'" data-modulo="view" class="btn btn-sm btn-icon btn-outline-dark btn-round btn-view"><i class="ti ti-eye"></i></button>';
+                $act_edit = '<button title="Editar Conta Financeira" data-id="'.$conta->id.'" data-modulo="edit" class="btn btn-sm btn-icon btn-outline-primary btn-round btn-edit"><i class="ti ti-pencil"></i></button>';
 
-            $sub_array = array();
+                $status = ($conta->active == true ? '<span class="btn btn-sm btn-icon btn-round btn-inverse-success"><i class="ti ti-unlock" title="Ativo"></i></span>' : '<span class="btn btn-sm btn-icon btn-round btn-inverse-danger"><i class="ti ti-lock" title="Inativo"></i></span>');
+            } else {
+                $act_view = '<button data-toggle="tooltip" data-original-title="Visualizar Conta" title="Visualizar Conta" data-id="'.$conta->id.'" data-modulo="view" class="btn btn-xs btn-default text-primary btn-width-27 btn-view"><i class="fa fa-eye"></i></button>';
+                $act_edit = '<button data-toggle="tooltip" data-original-title="Editar Conta" title="Editar Conta" data-id="'.$conta->id.'" data-modulo="edit" class="btn btn-xs btn-default btn-width-27 btn-edit"><i class="fas fa-edit"></i></button>';
+
+                $status = ($conta->active == true ? '<span class="btn btn-xs btn-default rounded-circle-custom text-success" data-toggle="tooltip" data-original-title="Ativo"><i class="fa fa-unlock" title="Ativo"></i></span>' : '<span class="btn btn-xs btn-default rounded-circle-custom text-danger" data-toggle="tooltip" data-original-title="Inativo"><i class="fa fa-lock" title="Inativo"></i></span>');
+            }
+
+            $sub_array = [];
 
             $sub_array[] = $conta->id;
             $sub_array[] = $conta->banco;
             $sub_array[] = $conta->agencia;
             $sub_array[] = $conta->numero;
             $sub_array[] = $conta->descricao;
-            $sub_array[] = ($conta->active == true ? '<span class="btn btn-xs btn-default rounded-circle-custom text-success" data-toggle="tooltip" data-original-title="Ativo"><i class="fa fa-unlock" title="Ativo"></i></span>' : '<span class="btn btn-xs btn-default rounded-circle-custom text-danger" data-toggle="tooltip" data-original-title="Inativo"><i class="fa fa-lock" title="Inativo"></i></span>');
-            $sub_array[] = $act_view . $act_edit . $conta->buttonsControl();
+            $sub_array[] = $status;
+            $sub_array[] = $act_view.$act_edit.$conta->buttonsControl();
 
             $data[] = $sub_array;
-            $rows++;
+            ++$rows;
         }
 
-        $json = array(
+        $json = [
             'draw' => intval($draw),
             'recordsTotal' => intval($rowsTotal),
             'recordsFiltered' => intval($rowsTotal),
             'data' => $data,
-        );
+        ];
 
         echo json_encode($json);
     }
 
     /**
-     * Método que retorna a view de inclusão de conta corrente
-     * 
+     * Método que retorna a view de inclusão de conta corrente.
+     *
      * @return view
      */
     public function add()
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $conta = new ContaCorrente();
 
-        $data = array(
-            'title'    => 'Nova Conta Corrente',
-            'method'   => 'insert',
-            'viewpath' => APP_THEME . $this->viewFolder,
-            'form'     => 'form',
+        $data = [
+            'title' => 'Nova Conta Financeira',
+            'method' => 'insert',
+            'viewpath' => APP_THEME.$this->viewFolder,
+            'form' => 'form',
             'response' => 'response',
-            'table'    => $conta,
-            'bancos'   => $this->bancoModel->getAllBancos(),
-        );
+            'table' => $conta,
+            'bancos' => $this->bancoModel->getAllBancos(),
+        ];
 
-        // return view($this->viewFolder . '/_add', $data);
-        return view(APP_THEME . '/layout/modals/_modal', $data);
+        return view(APP_THEME.'/layout/modals/_modal', $data);
     }
 
     /**
-     * Método que faz o insert dos dados da conta corrente
-     * 
+     * Método que faz o insert dos dados da conta corrente.
+     *
      * @return json
      */
     public function insert()
@@ -235,36 +243,36 @@ class ContasCorrentes extends BaseController
     }
 
     /**
-     * Método que retorna a view de edição dos dados da conta corrente
-     * 
+     * Método que retorna a view de edição dos dados da conta corrente.
+     *
      * @param $id
+     *
      * @return view
      */
     public function edit(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $conta = $this->validation_conta($id);
 
-        $data = array(
-            'title'    => 'Editar Conta Corrente',
-            'method'   => 'update',
-            'viewpath' => APP_THEME . $this->viewFolder,
-            'form'     => 'form',
+        $data = [
+            'title' => 'Editar Conta Financeira',
+            'method' => 'update',
+            'viewpath' => APP_THEME.$this->viewFolder,
+            'form' => 'form',
             'response' => 'response',
-            'table'    => $conta,
-            'bancos'   => $this->bancoModel->getAllBancos()
-        );
+            'table' => $conta,
+            'bancos' => $this->bancoModel->getAllBancos(),
+        ];
 
-        // return view($this->viewFolder . '/_edit', $data);
-        return view(APP_THEME . '/layout/modals/_modal', $data);
+        return view(APP_THEME.'/layout/modals/_modal', $data);
     }
 
     /**
-     * Método que faz o update dos dados da conta corrente
-     * 
+     * Método que faz o update dos dados da conta corrente.
+     *
      * @return json
      */
     public function update()
@@ -322,32 +330,34 @@ class ContasCorrentes extends BaseController
     }
 
     /**
-     * Método que retorna a view de deleção da conta corrente
-     * 
+     * Método que retorna a view de deleção da conta corrente.
+     *
      * @param $id
+     *
      * @return view
      */
     public function delete(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $conta = $this->validation_conta($id);
 
-        $data = array(
-            'title'  => 'Excluir',
+        $data = [
+            'title' => 'Excluir',
             'method' => 'delete',
-            'conta'  => $conta,
-        );
+            'table' => $conta,
+        ];
 
-        return view($this->viewFolder . '/_delete', $data);
+        return view(APP_THEME.$this->viewFolder.'/_delete', $data);
     }
 
     /**
-     * Método que faz a deleção da conta corrente
-     * 
+     * Método que faz a deleção da conta corrente.
+     *
      * @param $id
+     *
      * @return redirect
      */
     public function remove(int $id = null)
@@ -376,37 +386,39 @@ class ContasCorrentes extends BaseController
 
     /**
      * Método que retorna a view de restore da conta corrente.
-     * 
+     *
      * @param $id
+     *
      * @return view
      */
     public function undo(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $conta = $this->validation_conta($id);
 
         $data = [
-            'title'  => 'Restaurar',
+            'title' => 'Restaurar',
             'method' => 'restore',
-            'conta'  => $conta,
+            'table' => $conta,
         ];
 
-        return view($this->viewFolder . '/_restore', $data);
+        return view(APP_THEME.$this->viewFolder.'/_restore', $data);
     }
 
     /**
-     * Método que faz o restore da conta corrente
-     * 
+     * Método que faz o restore da conta corrente.
+     *
      * @param $id
+     *
      * @return redirect
      */
     public function restore(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $conta = $this->validation_conta($id);
@@ -427,24 +439,26 @@ class ContasCorrentes extends BaseController
     }
 
     /**
-     * Método que retorna a view de visualização dos dados da conta corrente
-     * 
+     * Método que retorna a view de visualização dos dados da conta corrente.
+     *
      * @param $id
+     *
      * @return view
      */
     public function show(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $conta = $this->validation_conta($id);
 
-        $data = array(
+        $data = [
             'title' => 'Visualizar',
-            'conta' => $conta,
-        );
+            'table' => $conta,
+            'bancos' => $this->bancoModel->getAllBancos(),
+        ];
 
-        return view($this->viewFolder . '/_show', $data);
+        return view(APP_THEME.$this->viewFolder.'/_show', $data);
     }
 }

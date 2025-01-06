@@ -18,6 +18,25 @@ class Home extends BaseController
         return view(APP_THEME . '/dashboards/index', $data);
     }
 
+    public function dynamicRoute()
+    {
+        $auth = new \App\Libraries\Authentication();
+        $user = userIsLogged();
+
+        if ($user->is_admin) {
+            // return $this->index();
+            $dashboardController = new \App\Controllers\DashboardFinanceiro();
+            return $dashboardController->index();
+        } elseif ($user->is_finance) {
+            $dashboardController = new \App\Controllers\DashboardFinanceiro();
+            return $dashboardController->index();
+        } elseif ($user->is_vendor) {
+            // Adicione o controller de vendor quando criar
+            return $this->index(); 
+        }
+
+        return $this->index();
+    }
 
     public function testeCEP()
     {

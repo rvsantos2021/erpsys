@@ -1,7 +1,7 @@
                 <div class="form-row">
                     <div class="form-group col-md-3">
                         <div class="text-center">
-                            <img class="img-fluid" src="<?php echo site_url('mentor/assets/img/logo-icon-large.png'); ?>" alt="Segmento" />
+                            <img class="img-fluid" src="<?php echo site_url('assets/images/avatar-tipo-cobranca.png'); ?>" alt="Tipo de Cobrança" />
                         </div>
                     </div>
                     <div class="form-group col-md-9">

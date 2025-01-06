@@ -135,7 +135,7 @@ class TabelaPrecoModel extends Model
      */
     public function getTabelaById($id)
     {
-        return $this->select('tabelas_precos.descricao')
+        return $this->select('tabelas_precos.id,tabelas_precos.descricao')
             ->where('tabelas_precos.id', $id)
             ->withDeleted(true)
             ->find();

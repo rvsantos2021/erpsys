@@ -24,17 +24,17 @@ var $route = '/estoque/depositos';
                     }
                 },
                 'columnDefs': [{
-                    'targets': 2,
-                    'className': 'text-center',
-                    'orderable': 'false',
-                    "order": []
-                },
-                {
-                    'targets': 3,
-                    'className': 'text-center',
-                    'orderable': 'false',
-                    "order": []
-                },
+                        'targets': 2,
+                        'className': 'text-center',
+                        'orderable': 'false',
+                        "order": []
+                    },
+                    {
+                        'targets': 3,
+                        'className': 'text-center',
+                        'orderable': 'false',
+                        "order": []
+                    },
                 ]
             });
         }

@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Controllers\BaseController;
 use App\Entities\Banco;
 
 class Bancos extends BaseController
@@ -15,10 +14,11 @@ class Bancos extends BaseController
 
     /**
      * Método que valida se o banco existe. Caso exista retorna um object com os dados do banco, caso
-     * não exista, retorna um Exception
-     * 
-     * @param integer $id
-     * @return Object ou Exception
+     * não exista, retorna um Exception.
+     *
+     * @param int $id
+     *
+     * @return object ou Exception
      */
     private function validation_banco(int $id = null)
     {
@@ -36,32 +36,32 @@ class Bancos extends BaseController
     }
 
     /**
-     * Método que retorna a view com todos os registros da tabela
-     * 
+     * Método que retorna a view com todos os registros da tabela.
+     *
      * @return view
      */
     public function index()
     {
         if ($this->getLoggedUserData() == '') {
-            return redirect()->to(site_url("login"))->with("message-info", "Verifique suas credenciais e tente novamente!");
+            return redirect()->to(site_url('login'))->with('message-info', 'Verifique suas credenciais e tente novamente!');
         }
 
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
-        $data = array(
-            'menu'    => 'Financeiro',
+        $data = [
+            'menu' => 'Financeiro',
             'submenu' => 'Cadastros',
-            'title'   => 'Bancos',
-        );
+            'title' => 'Bancos',
+        ];
 
-        return view($this->viewFolder . '/list', $data);
+        return view(APP_THEME.$this->viewFolder.'/list', $data);
     }
 
     /**
-     * Metodo chamado via AJAX que retorna um JSON com os dados de todos os bancos
-     * 
+     * Metodo chamado via AJAX que retorna um JSON com os dados de todos os bancos.
+     *
      * @return JSON
      */
     public function fetch()
@@ -70,16 +70,16 @@ class Bancos extends BaseController
             return redirect()->back();
         }
 
-        $columns = array(
+        $columns = [
             0 => 'bancos.id',
             1 => 'bancos.codigo',
             2 => 'bancos.descricao',
             3 => 'bancos.active',
-        );
+        ];
 
-        $draw = isset($_POST['draw']) ? (int)$_POST['draw'] : 10;
-        $start = isset($_POST['start']) ? (int)$_POST['start'] : 0;
-        $rowPerPage = isset($_POST['length']) ? (int)$_POST['length'] : 10;
+        $draw = isset($_POST['draw']) ? (int) $_POST['draw'] : 10;
+        $start = isset($_POST['start']) ? (int) $_POST['start'] : 0;
+        $rowPerPage = isset($_POST['length']) ? (int) $_POST['length'] : 10;
         $columnIndex = isset($_POST['order'][0]['column']) ? $_POST['order'][0]['column'] : 0;
         $orderColumn = isset($_POST['columns'][$columnIndex]['data']) ? $_POST['columns'][$columnIndex]['data'] : 0;
         $orderDir = isset($_POST['order']) ? $_POST['order'][0]['dir'] : '';
@@ -98,101 +98,108 @@ class Bancos extends BaseController
             $orderColumn = 0;
         }
 
-        $params_array = array(
+        $params_array = [
             'start' => $start,
             'rowperpage' => $rowPerPage,
             'search' => $search,
             'order' => $columns[$orderColumn],
             'dir' => $orderDir,
-        );
+        ];
 
         $bancos = $this->bancoModel->getBancos($params_array);
         $rowsTotal = $this->bancoModel->countBancos($search);
 
         $rows = 0;
-        $data = array();
+        $data = [];
 
         foreach ($bancos as $banco) {
-            $act_view  = '<button data-toggle="tooltip" data-original-title="Visualizar Banco" title="Visualizar Banco" data-id="' . $banco->id . '" data-modulo="view" class="btn btn-xs btn-default text-primary btn-width-27 btn-view"><i class="fa fa-eye"></i></button>';
-            $act_edit  = '<button data-toggle="tooltip" data-original-title="Editar Banco" title="Editar Banco" data-id="' . $banco->id . '" data-modulo="edit" class="btn btn-xs btn-default btn-width-27 btn-edit"><i class="fas fa-edit"></i></button>';
+            if (APP_THEME == 'mentor') {
+                $act_view = '<button title="Visualizar Banco" data-id="'.$banco->id.'" data-modulo="view" class="btn btn-sm btn-icon btn-outline-dark btn-round btn-view"><i class="ti ti-eye"></i></button>';
+                $act_edit = '<button title="Editar Banco" data-id="'.$banco->id.'" data-modulo="edit" class="btn btn-sm btn-icon btn-outline-primary btn-round btn-edit"><i class="ti ti-pencil"></i></button>';
 
-            $sub_array = array();
+                $status = ($banco->active == true ? '<span class="btn btn-sm btn-icon btn-round btn-inverse-success"><i class="ti ti-unlock" title="Ativo"></i></span>' : '<span class="btn btn-sm btn-icon btn-round btn-inverse-danger"><i class="ti ti-lock" title="Inativo"></i></span>');
+            } else {
+                $act_view = '<button data-toggle="tooltip" data-original-title="Visualizar Banco" title="Visualizar Banco" data-id="'.$banco->id.'" data-modulo="view" class="btn btn-xs btn-default text-primary btn-width-27 btn-view"><i class="fa fa-eye"></i></button>';
+                $act_edit = '<button data-toggle="tooltip" data-original-title="Editar Banco" title="Editar Banco" data-id="'.$banco->id.'" data-modulo="edit" class="btn btn-xs btn-default btn-width-27 btn-edit"><i class="fas fa-edit"></i></button>';
+
+                $status = ($banco->active == true ? '<span class="btn btn-xs btn-default rounded-circle-custom text-success" data-toggle="tooltip" data-original-title="Ativo"><i class="fa fa-unlock" title="Ativo"></i></span>' : '<span class="btn btn-xs btn-default rounded-circle-custom text-danger" data-toggle="tooltip" data-original-title="Inativo"><i class="fa fa-lock" title="Inativo"></i></span>');
+            }
+
+            $sub_array = [];
 
             $sub_array[] = $banco->id;
             $sub_array[] = $banco->codigo;
             $sub_array[] = $banco->descricao;
-            $sub_array[] = ($banco->active == true ? '<span class="btn btn-xs btn-default rounded-circle-custom text-success" data-toggle="tooltip" data-original-title="Ativo"><i class="fa fa-unlock" title="Ativo"></i></span>' : '<span class="btn btn-xs btn-default rounded-circle-custom text-danger" data-toggle="tooltip" data-original-title="Inativo"><i class="fa fa-lock" title="Inativo"></i></span>');
-            $sub_array[] = $act_view . $act_edit . $banco->buttonsControl();
+            $sub_array[] = $status;
+            $sub_array[] = $act_view.$act_edit.$banco->buttonsControl();
 
             $data[] = $sub_array;
-            $rows++;
+            ++$rows;
         }
 
-        $json = array(
+        $json = [
             'draw' => intval($draw),
             'recordsTotal' => intval($rowsTotal),
             'recordsFiltered' => intval($rowsTotal),
             'data' => $data,
-        );
+        ];
 
         echo json_encode($json);
     }
 
     /**
-     * Método que retorna a view de inclusão de banco
-     * 
+     * Método que retorna a view de inclusão de banco.
+     *
      * @return view
      */
     public function add()
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $banco = new Banco();
 
-        $data = array(
-            'title'    => 'Novo Banco',
-            'method'   => 'insert',
-            'viewpath' => APP_THEME . $this->viewFolder,
-            'table'    => $banco,
-            'form'     => 'form',
+        $data = [
+            'title' => 'Novo Banco',
+            'method' => 'insert',
+            'viewpath' => APP_THEME.$this->viewFolder,
+            'table' => $banco,
+            'form' => 'form',
             'response' => 'response',
-        );
+        ];
 
-        // return view($this->viewFolder . '/_add', $data);
-        return view(APP_THEME . '/layout/modals/_modal', $data);
+        return view(APP_THEME.'/layout/modals/_modal', $data);
     }
 
     /**
-     * Método que retorna a view de inclusão de banco
-     * 
+     * Método que retorna a view de inclusão de banco.
+     *
      * @return view
      */
     public function add_modal()
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $banco = new Banco();
 
-        $data = array(
-            'title'    => 'Novo Banco',
-            'method'   => 'insert',
-            'viewpath' => APP_THEME . $this->viewFolder,
-            'table'    => $banco,
-            'form'     => 'formAddBanco',
+        $data = [
+            'title' => 'Novo Banco',
+            'method' => 'insert',
+            'viewpath' => APP_THEME.$this->viewFolder,
+            'table' => $banco,
+            'form' => 'formAddBanco',
             'response' => 'responseBanco',
-        );
+        ];
 
-        // return view($this->viewFolder . '/_add', $data);
-        return view(APP_THEME . '/layout/modals/_modal', $data);
+        return view(APP_THEME.'/layout/modals/_modal', $data);
     }
 
     /**
-     * Método que faz o insert dos dados do banco
-     * 
+     * Método que faz o insert dos dados do banco.
+     *
      * @return json
      */
     public function insert()
@@ -256,35 +263,35 @@ class Bancos extends BaseController
     }
 
     /**
-     * Método que retorna a view de edição dos dados do banco
-     * 
+     * Método que retorna a view de edição dos dados do banco.
+     *
      * @param $id
+     *
      * @return view
      */
     public function edit(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $banco = $this->validation_banco($id);
 
-        $data = array(
-            'title'    => 'Editar Banco',
-            'method'   => 'update',
-            'viewpath' => APP_THEME . $this->viewFolder,
-            'table'    => $banco,
-            'form'     => 'form',
+        $data = [
+            'title' => 'Editar Banco',
+            'method' => 'update',
+            'viewpath' => APP_THEME.$this->viewFolder,
+            'table' => $banco,
+            'form' => 'form',
             'response' => 'response',
-        );
+        ];
 
-        // return view($this->viewFolder . '/_edit', $data);
-        return view(APP_THEME . '/layout/modals/_modal', $data);
+        return view(APP_THEME.'/layout/modals/_modal', $data);
     }
 
     /**
-     * Método que faz o update dos dados do banco
-     * 
+     * Método que faz o update dos dados do banco.
+     *
      * @return json
      */
     public function update()
@@ -342,32 +349,34 @@ class Bancos extends BaseController
     }
 
     /**
-     * Método que retorna a view de deleção do banco
-     * 
+     * Método que retorna a view de deleção do banco.
+     *
      * @param $id
+     *
      * @return view
      */
     public function delete(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $banco = $this->validation_banco($id);
 
-        $data = array(
-            'title'  => 'Excluir',
+        $data = [
+            'title' => 'Excluir',
             'method' => 'delete',
-            'banco'  => $banco,
-        );
+            'table' => $banco,
+        ];
 
-        return view($this->viewFolder . '/_delete', $data);
+        return view(APP_THEME.$this->viewFolder.'/_delete', $data);
     }
 
     /**
-     * Método que faz a deleção do banco
-     * 
+     * Método que faz a deleção do banco.
+     *
      * @param $id
+     *
      * @return redirect
      */
     public function remove(int $id = null)
@@ -396,37 +405,39 @@ class Bancos extends BaseController
 
     /**
      * Método que retorna a view de restore do banco.
-     * 
+     *
      * @param $id
+     *
      * @return view
      */
     public function undo(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('excluir-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $banco = $this->validation_banco($id);
 
         $data = [
-            'title'  => 'Restaurar',
+            'title' => 'Restaurar',
             'method' => 'restore',
-            'banco'  => $banco,
+            'table' => $banco,
         ];
 
-        return view($this->viewFolder . '/_restore', $data);
+        return view(APP_THEME.$this->viewFolder.'/_restore', $data);
     }
 
     /**
-     * Método que faz o restore do banco
-     * 
+     * Método que faz o restore do banco.
+     *
      * @param $id
+     *
      * @return redirect
      */
     public function restore(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('editar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $banco = $this->validation_banco($id);
@@ -447,24 +458,25 @@ class Bancos extends BaseController
     }
 
     /**
-     * Método que retorna a view de visualização dos dados do banco
-     * 
+     * Método que retorna a view de visualização dos dados do banco.
+     *
      * @param $id
+     *
      * @return view
      */
     public function show(int $id = null)
     {
-        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-' . $this->route))) {
-            session()->setFlashdata('message-warning', 'O usuário <b>' . $this->getLoggedUserData()->name . '</b> não possui permissão para acessar este módulo.');
+        if ((!$this->getLoggedUserData()->is_admin) || (!$this->getLoggedUserData()->validatePermissionLoggedUser('listar-'.$this->route))) {
+            session()->setFlashdata('message-warning', 'O usuário <b>'.$this->getLoggedUserData()->name.'</b> não possui permissão para acessar este módulo.');
         }
 
         $banco = $this->validation_banco($id);
 
-        $data = array(
+        $data = [
             'title' => 'Visualizar',
-            'banco' => $banco,
-        );
+            'table' => $banco,
+        ];
 
-        return view($this->viewFolder . '/_show', $data);
+        return view(APP_THEME.$this->viewFolder.'/_show', $data);
     }
 }
