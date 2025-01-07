@@ -35,12 +35,12 @@
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Fornecedor</label>
-                            <select name="fornecedor_id" class="js-basic-single form-control form-select">
+                            <label class="form-label">Cliente</label>
+                            <select name="cliente_id" class="js-basic-single form-control form-select">
                                 <option value="">Todos</option>
-                                <?php foreach($fornecedores as $fornecedor): ?>
-                                    <option value="<?= $fornecedor->id ?>">
-                                        <?= $fornecedor->nome_fantasia === '' ? $fornecedor->razao_social : $fornecedor->nome_fantasia; ?>
+                                <?php foreach($clientes as $cliente): ?>
+                                    <option value="<?= $cliente->id ?>">
+                                        <?= $cliente->nome_fantasia === '' ? $cliente->razao_social : $cliente->nome_fantasia; ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -51,7 +51,7 @@
                                 <option value="">Todos</option>
                                 <option value="PENDENTE">Pendente</option>
                                 <option value="PARCIAL">Parcial</option>
-                                <option value="PAGO">Pago</option>
+                                <option value="RECEBIDO">Recebido</option>
                                 <option value="CANCELADO">Cancelado</option>
                                 <option value="ATRASADO">Atrasado</option>
                             </select>
@@ -68,11 +68,11 @@
                 </form>
 
                 <div class="table-responsive">
-                    <table id="datatableContasPagar" class="table mb-0" style="width: 100%;">
+                    <table id="datatableContasReceber" class="table mb-0" style="width: 100%;">
                         <thead class="thead-light">
                             <tr>
                                 <th scope="col"class="col-1">Documento</th>
-                                <th scope="col" class="col-3">Fornecedor</th>
+                                <th scope="col" class="col-3">Cliente</th>
                                 <th scope="col">Descrição</th>
                                 <th scope="col" class="col-2 text-right">Valor</th>
                                 <th scope="col" class="col-1">Vencimento</th>
@@ -84,7 +84,7 @@
                         <tfoot class="thead-light">
                             <tr>
                                 <th scope="col" class="col-1">Documento</th>
-                                <th scope="col" class="col-3">Fornecedor</th>
+                                <th scope="col" class="col-3">Cliente</th>
                                 <th scope="col">Descrição</th>
                                 <th scope="col" class="col-2 text-right">Valor</th>
                                 <th scope="col" class="col-1">Vencimento</th>
@@ -129,9 +129,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
-<!-- Máscara de input -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/5.0.6/jquery.inputmask.min.js"></script>
 <!-- custom app -->
-<script src="<?= site_url('mentor/assets/'); ?>js/financeiro/contas-pagar.js"></script>
-<script src="<?= site_url('mentor/assets/'); ?>js/common.js" data-route="contaspagar"></script>
+<script src="<?= site_url('mentor/assets/'); ?>js/financeiro/contas-receber.js"></script>
+<script src="<?= site_url('mentor/assets/'); ?>js/common.js" data-route="contasreceber"></script>
 <?= $this->endSection() ?>

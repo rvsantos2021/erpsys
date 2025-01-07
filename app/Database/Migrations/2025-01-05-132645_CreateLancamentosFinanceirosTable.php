@@ -61,12 +61,6 @@ class CreateLancamentosFinanceirosTable extends Migration
                 'unsigned' => true,
                 'null' => true
             ],
-            'fornecedor_id' => [
-                'type' => 'INT',
-                'constraint' => 11,
-                'unsigned' => true,
-                'null' => true
-            ],
             'numero_documento' => [
                 'type' => 'VARCHAR',
                 'constraint' => 100,
@@ -105,10 +99,6 @@ class CreateLancamentosFinanceirosTable extends Migration
 
         if ($this->db->tableExists('classificacoes_contas')) {
             $this->forge->addForeignKey('classificacao_conta_id', 'classificacoes_contas', 'id', 'SET NULL', 'CASCADE');
-        }
-
-        if ($this->db->tableExists('fornecedores')) {
-            $this->forge->addForeignKey('fornecedor_id', 'fornecedores', 'id', 'SET NULL', 'CASCADE');
         }
 
         if ($this->db->tableExists('contas_correntes')) {

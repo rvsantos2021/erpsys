@@ -13,7 +13,7 @@ if (APP_NAME == 'MentorSys') {
     defined('APP_THEME') || define('APP_THEME', '');
 }
 
-defined('APP_VERSION') || define('APP_VERSION', '1.0.1');
+defined('APP_VERSION') || define('APP_VERSION', '1.0.2');
 
 /*
  | --------------------------------------------------------------------

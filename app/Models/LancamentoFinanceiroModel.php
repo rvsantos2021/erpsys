@@ -20,7 +20,7 @@ class LancamentoFinanceiroModel extends Model
         'data_competencia',
         'descricao',
         'classificacao_conta_id',
-        'fornecedor_id',
+        //'fornecedor_id',
         'numero_documento',
         'status',
         'user_id',
@@ -65,30 +65,4 @@ class LancamentoFinanceiroModel extends Model
             'integer' => 'Usuário não encontrado',
         ],
     ];
-
-    // Relationships
-    // public function contaOrigem()
-    // {
-    //     return $this->belongsTo(ContaCorrenteModel::class, 'conta_origem_id');
-    // }
-
-    // public function contaDestino()
-    // {
-    //     return $this->belongsTo(ContaCorrenteModel::class, 'conta_destino_id');
-    // }
-
-    // public function classificacao()
-    // {
-    //     return $this->belongsTo(ClassificacaoContaModel::class, 'classificacao_conta_id');
-    // }
-
-    // public function fornecedor()
-    // {
-    //     return $this->belongsTo(FornecedorModel::class, 'fornecedor_id');
-    // }
-
-    // public function usuario()
-    // {
-    //     return $this->belongsTo(UserModel::class, 'user_id');
-    // }
 }

@@ -3,17 +3,16 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
-use App\Entities\ContaPagar;
-use CodeIgniter\I18n\Time;
+use App\Entities\ContaReceber;
 
-class ContaPagarModel extends Model
+class ContaReceberModel extends Model
 {
-    protected $table            = 'contas_pagar';
+    protected $table            = 'contas_receber';
     protected $primaryKey       = 'id';
-    protected $returnType       = ContaPagar::class;
+    protected $returnType       = ContaReceber::class;
     protected $useSoftDeletes   = true;
     protected $allowedFields    = [
-        'fornecedor_id', 
+        'cliente_id', 
         'conta_pai_id', 
         'numero_documento', 
         'descricao', 
@@ -97,19 +96,19 @@ class ContaPagarModel extends Model
     // Sobrescrever métodos para garantir tratamento correto
     public function findAll(?int $limit = null, int $offset = 0)
     {
-        $this->builder()->where('contas_pagar.active', 1);
+        $this->builder()->where('contas_receber.active', 1);
         return parent::findAll($limit, $offset);
     }
         
     public function countAllResults(bool $reset = true, bool $test = false): int
     {
-        $this->builder()->where('contas_pagar.active', 1);
+        $this->builder()->where('contas_receber.active', 1);
         return parent::countAllResults($reset, $test);
     }
                 
     public function selectSum(string $select, string $alias = null)
     {
-        $this->builder()->where('contas_pagar.active', 1);
+        $this->builder()->where('contas_receber.active', 1);
         
         // Se nenhum alias for fornecido, usar o nome da coluna como alias
         if ($alias === null) {
@@ -163,16 +162,16 @@ class ContaPagarModel extends Model
 
     // Relacionamentos
     protected $with = [
-        'fornecedor', 
+        'cliente', 
         'classificacaoConta', 
         'formaPagamento', 
         'contaCorrente'
     ];
     
     // Definir relacionamentos
-    public function fornecedor()
+    public function cliente()
     {
-        return $this->belongsTo(FornecedorModel::class, 'fornecedor_id');
+        return $this->belongsTo(ClienteModel::class, 'cliente_id');
     }
 
     public function classificacaoConta()
@@ -204,7 +203,7 @@ class ContaPagarModel extends Model
     {
         // Preparar dados para conta avulsa
         $dadosConta = [
-            'fornecedor_id' => $data['fornecedor_id'],
+            'cliente_id' => $data['cliente_id'],
             'classificacao_conta_id' => $data['classificacao_conta_id'],
             'forma_pagamento_id' => $data['forma_pagamento_id'],
             'valor_total' => $data['valor_total'],
@@ -223,7 +222,7 @@ class ContaPagarModel extends Model
         // Retornar objeto da conta
         return $this->find($contaId);
     }
-    
+
     public function createParcelas($parcelasData)
     {
         // Validar dados das parcelas
@@ -265,7 +264,7 @@ class ContaPagarModel extends Model
     {
         // Preparar dados para conta parcelada
         $dadosContaPai = [
-            'fornecedor_id' => $data['fornecedor_id'],
+            'cliente_id' => $data['cliente_id'],
             'classificacao_conta_id' => $data['classificacao_conta_id'],
             'forma_pagamento_id' => $data['forma_pagamento_id'],
             'valor_total' => $data['valor_total'],
@@ -319,7 +318,7 @@ class ContaPagarModel extends Model
 
         // Define status baseado no valor pago
         if ($valorPago >= $conta->valor_total) {
-            $dadosAtualizacao['status'] = 'PAGO';
+            $dadosAtualizacao['status'] = 'RECEBIDO';
         } elseif ($valorPago > 0) {
             $dadosAtualizacao['status'] = 'PARCIAL';
 
@@ -332,14 +331,14 @@ class ContaPagarModel extends Model
 
     /**
      * Gera uma nova conta para o saldo restante
-     * @param ContaPagar $contaOriginal Conta original
+     * @param ContaReceber $contaOriginal Conta original
      * @param float $saldoRestante Saldo restante
      * @return int ID da nova conta
      */
-    private function gerarContaRestante(ContaPagar $contaOriginal, float $saldoRestante)
+    private function gerarContaRestante(ContaReceber $contaOriginal, float $saldoRestante)
     {
         $dadosNovaContaRestante = [
-            'fornecedor_id' => $contaOriginal->fornecedor_id,
+            'cliente_id' => $contaOriginal->cliente_id,
             'conta_pai_id' => $contaOriginal->id,
             'numero_documento' => $contaOriginal->numero_documento,
             'descricao' => "Saldo restante - {$contaOriginal->descricao}",
@@ -381,8 +380,8 @@ class ContaPagarModel extends Model
             $builder->where('data_vencimento <=', $filtros['data_vencimento_fim']);
         }
 
-        if (!empty($filtros['fornecedor_id'])) {
-            $builder->where('fornecedor_id', $filtros['fornecedor_id']);
+        if (!empty($filtros['cliente_id'])) {
+            $builder->where('cliente_id', $filtros['cliente_id']);
         }
 
         if (!empty($filtros['status'])) {
@@ -411,7 +410,7 @@ class ContaPagarModel extends Model
     {
         $dadosContaFilha = [
             'numero_documento' => $contaOriginal->numero_documento . '-SALDO',
-            'fornecedor_id' => $contaOriginal->fornecedor_id,
+            'cliente_id' => $contaOriginal->cliente_id,
             'classificacao_conta_id' => $contaOriginal->classificacao_conta_id,
             'data_emissao' => date('Y-m-d'),
             'data_vencimento' => date('Y-m-d', strtotime('+30 days')),
@@ -457,7 +456,7 @@ class ContaPagarModel extends Model
                 'data_pagamento' => $dadosBaixa['data_pagamento'],
                 'forma_pagamento_id' => $dadosBaixa['forma_pagamento_id'],
                 'conta_corrente_id' => $dadosBaixa['conta_corrente_id'],
-                'status' => $saldoRemanescente > 0 ? 'PARCIAL' : 'PAGO'
+                'status' => $saldoRemanescente > 0 ? 'PARCIAL' : 'RECEBIDO'
             ];
 
             // Atualizar conta

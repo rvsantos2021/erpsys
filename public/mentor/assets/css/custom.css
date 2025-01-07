@@ -119,3 +119,22 @@ tab9 {
     color: #ffffff !important;
     background-color: #6c757d;
 }
+
+.chart-bottom-details {
+    margin-bottom: 15px;
+}
+
+.chart-bottom-details p {
+    font-size: 0.875rem;
+}
+
+.avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #f1f3f9;
+    color: #6c757d;
+}

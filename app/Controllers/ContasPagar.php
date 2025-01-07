@@ -124,6 +124,7 @@ class ContasPagar extends BaseController
         $records = $builder->get()->getResult();
 
         $data = [];
+
         foreach ($records as $record) {
             $data[] = [
                 'id' => $record->id,
@@ -312,7 +313,7 @@ class ContasPagar extends BaseController
     public function create()
     {
         $data = [
-            'fornecedores' => $this->fornecedorModel->orderBy('razao_social', 'ASC')->findAll(),
+            'fornecedores' => $this->fornecedorModel->orderBy('nome_fantasia', 'ASC')->orderBy('razao_social', 'ASC')->findAll(),
             'classificacoes' => $this->classificacaoContaModel->orderBy('codigo', 'ASC')->findAll(),
             'formasPagamento' => $this->formaPagamentoModel->orderBy('nome', 'ASC')->findAll(),
             'contasCorrente' => $this->contaCorrenteModel->orderBy('descricao', 'ASC')->findAll(),
@@ -447,7 +448,7 @@ class ContasPagar extends BaseController
     
         $data = [
             'conta' => $conta,
-            'fornecedores' => $this->fornecedorModel->orderBy('razao_social', 'ASC')->findAll(),
+            'fornecedores' => $this->fornecedorModel->orderBy('nome_fantasia', 'ASC')->orderBy('razao_social', 'ASC')->findAll(),
             'classificacoes' => $this->classificacaoContaModel->orderBy('codigo', 'ASC')->findAll(),
             'formasPagamento' => $this->formaPagamentoModel->orderBy('nome', 'ASC')->findAll(),
             'contasCorrente' => $this->contaCorrenteModel->orderBy('descricao', 'ASC')->findAll(),
@@ -599,7 +600,7 @@ class ContasPagar extends BaseController
         $data = [
             'title' => 'Visualizar Conta',
             'conta' => $conta,
-            'fornecedores' => $this->fornecedorModel->orderBy('razao_social', 'ASC')->findAll(),
+            'fornecedores' => $this->fornecedorModel->orderBy('nome_fantasia', 'ASC')->orderBy('razao_social', 'ASC')->findAll(),
             'classificacoes' => $this->classificacaoContaModel->orderBy('codigo', 'ASC')->findAll(),
             'formasPagamento' => $this->formaPagamentoModel->orderBy('nome', 'ASC')->findAll(),
             'contasCorrente' => $this->contaCorrenteModel->orderBy('descricao', 'ASC')->findAll(),
@@ -628,7 +629,7 @@ class ContasPagar extends BaseController
         $data = [
             'title' => 'Baixar Conta a Pagar',
             'conta' => $conta,
-            'fornecedores' => $this->fornecedorModel->orderBy('razao_social', 'ASC')->findAll(),
+            'fornecedores' => $this->fornecedorModel->orderBy('nome_fantasia', 'ASC')->orderBy('razao_social', 'ASC')->findAll(),
             'classificacoes' => $this->classificacaoContaModel->orderBy('codigo', 'ASC')->findAll(),
             'formasPagamento' => $this->formaPagamentoModel->orderBy('nome', 'ASC')->findAll(),
             'contasCorrente' => $this->contaCorrenteModel->orderBy('descricao', 'ASC')->findAll(),
@@ -740,7 +741,7 @@ class ContasPagar extends BaseController
                 'data_competencia' => $dataCompetencia,
                 'descricao' => "Pagamento de {$conta->descricao}",
                 'classificacao_conta_id' => $conta->classificacao_conta_id,
-                'fornecedor_id' => $conta->fornecedor_id,
+                //'fornecedor_id' => $conta->fornecedor_id,
                 'numero_documento' => $conta->numero_documento,
                 'status' => 'CONCLUIDO',
                 'user_id' => userIsLogged()->id,

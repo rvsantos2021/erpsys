@@ -434,6 +434,23 @@ $routes->group('financeiro', function ($routes) {
     $routes->post('contaspagar/update', 'ContasPagar::update');
     $routes->post('contaspagar/delete', 'ContasPagar::delete');
     $routes->post('contaspagar/paybill', 'ContasPagar::paybill');
+
+    /**
+     * Controller ContasReceber
+     */
+    $routes->get('contasreceber', 'ContasReceber::index');
+    $routes->get('contasreceber/add', 'ContasReceber::create');
+    $routes->get('contasreceber/edit/(:num)', 'ContasReceber::edit/$1');
+    $routes->get('contasreceber/view/(:num)', 'ContasReceber::view/$1');
+    $routes->get('contasreceber/receivable/(:num)', 'ContasReceber::receivable/$1');
+    $routes->get('contasreceber/attach/(:num)', 'ContasReceber::attach/$1');
+
+    $routes->post('contasreceber/remove/(:num)', 'ContasReceber::remove/$1');
+    $routes->post('contasreceber/fetch', 'ContasReceber::datatables');
+    $routes->post('contasreceber/store', 'ContasReceber::store');
+    $routes->post('contasreceber/update', 'ContasReceber::update');
+    $routes->post('contasreceber/delete', 'ContasReceber::delete');
+    $routes->post('contasreceber/receive', 'ContasReceber::receive');
 });
 
 /****************************************************************************************************

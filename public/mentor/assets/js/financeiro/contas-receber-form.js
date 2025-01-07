@@ -1,4 +1,4 @@
-var $route = '/financeiro/contaspagar';
+var $route = '/financeiro/contasreceber';
 var $method = document.currentScript.getAttribute('data-method');
 
 $(document).ready(function() {
@@ -27,7 +27,7 @@ $(document).ready(function() {
             let resto = totalCentavos % numeroParcelas;
 
             let parcelas = [];
-            
+
             for (let i = 0; i < numeroParcelas; i++) {
                 let valorParcela = parcelaCentavos + (i < resto ? 1 : 0);
                 parcelas.push(valorParcela / 100);
@@ -108,14 +108,14 @@ $(document).ready(function() {
     });
 });
 
-$('.modal-confirm-cp').on('click', function(e) {
+$('.modal-confirm-cr').on('click', function(e) {
     e.preventDefault();
 
     // Verificar se é formulário de cadastro, edição ou baixa
     var form = $('#formCadastro, #formEdicao, #formBaixa').filter(':visible');
     var isEdicao = form.attr('id') === 'formEdicao';
     var isBaixa = form.attr('id') === 'formBaixa';
-    var url = isBaixa ? $route + '/paybill' : isEdicao ? $route + '/update' : $route + '/store';
+    var url = isBaixa ? $route + '/receive' : isEdicao ? $route + '/update' : $route + '/store';
 
     // Validar campos obrigatórios
     var isValid = true;
@@ -162,8 +162,8 @@ $('.modal-confirm-cp').on('click', function(e) {
                 toastr.success(response.message);
                 $('#modalCadastro, #modalEdicao, #modalBaixa').modal('hide');
                 
-                // Atualizar tabela de contas a pagar
-                atualizarTabelaContasPagar();
+                // Atualizar tabela de contas a receber
+                atualizarTabelaContasReceber();
             } else {
                 toastr.error(response.message || 'Erro ao salvar a conta.');
             }
@@ -175,11 +175,11 @@ $('.modal-confirm-cp').on('click', function(e) {
     });
 });
 
-// Função para atualizar tabela de contas a pagar
-function atualizarTabelaContasPagar() {
+// Função para atualizar tabela de contas a receber
+function atualizarTabelaContasReceber() {
     if (typeof table !== 'undefined' && table !== null) {
         table.ajax.reload(null, false);
     } else {
-        console.warn('Tabela de contas a pagar não inicializada');
+        console.warn('Tabela de contas a receber não inicializada');
     }
 }
